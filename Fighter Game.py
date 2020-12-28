@@ -28,7 +28,7 @@ while not done:
             done = True
  
     # --- Game logic should go here
- 
+  
     # --- Screen-clearing code goes here
  
     # Here, we clear the screen to white. Don't put other drawing commands

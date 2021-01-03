@@ -33,53 +33,6 @@ maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 pygame.init()
  
 #Classes
-class Player(pygame.sprite.Sprite):
-         def __init__(self):
-             super().__init__()
-             self.health = 100
-             self.xp = 0
-             self.score = 0
-             self.kills = 0
-             self.level = 0
-        
-             #Set player image and location
-             self.image = pygame.image.load("PlayerGuy.png").convert()
-             self.image.set_colorkey(BLACK)
-             self.rect=self.image.get_rect()
-             self.rect.x=100
-             self.rect.y=100
-        
-         def move(self,x,y):
-             self.x_speed += x
-             self.y_speed += y
-        
-         def update(self, wall):
-
-            #Moves the player
-            self.rect.x += self.x_speed
-            self.rect.y =+ self.y_speed
-            
-            #Checks for collisions between player and wall
-            player_hit_list = pygame.sprite.spritecollide(player, wall, False) 
-
-            for player in player_hit_list:
-
-                #If the player is moving right, set the right edge of the player, to the left edge of the wall (stops it going through) and vice versa if moving left
-                if player.x_speed > 0:
-                    player.rect.right = wall.rect.left
-                elif player.x_speed < 0: 
-                    player.rect.left = wall.rect.right
-                
-                #Same as above, if the player hits the top wall, set the bottom edge of the 
-                elif player.y_speed > 0:
-                    player.rect.bottom = wall.rect.top
-                elif player.y_speed < 0:
-                    player.rect.top = wall.rect.bottom
-
-                    
-
-
-            
 
 class Wall(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -95,9 +48,62 @@ class Wall(pygame.sprite.Sprite):
         self.rect.y = y
 
 
+        
+class Player(pygame.sprite.Sprite):
+         def __init__(self,x,y):
+             super().__init__()
+             self.health = 100
+             self.xp = 0
+             self.score = 0
+             self.kills = 0
+             self.level = 0
+             self.x_speed = 0
+             self.y_speed = 0
+        
+             #Set player image and location
+             self.image = pygame.image.load("PlayerGuy.png").convert()
+             self.image.set_colorkey(BLACK)
+             self.rect=self.image.get_rect()
+             self.rect.x=100
+             self.rect.y=100
+        
+         def move(self,x,y):
 
+             #Adds the movement values to the x and y of player
+             self.x_speed += x
+             self.y_speed += y
+        
+         def update(self):
 
+            #Moves the player on x-axis
+            self.rect.x += self.x_speed
 
+            #Check if player collides with an object in wall_list, if it does, add to player_hit_list.
+            player_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
+
+            for wall in player_hit_list:
+                if player.x_speed > 0:                  #if the player is moving right and it hits a wall
+                    player.rect.right = wall.rect.left  #Set right edge of player to left edge of wall to stop it going through
+                elif player.x_speed < 0:                #Same as above, but the opposite (moving left)
+                    player.rect.left = wall.rect.rig
+
+            #Moves player on y-axis
+            self.rect.y += self.y_speed
+            
+            #Check if player collides with an object in wall_list, if it does, add to
+            # player_hit_list.
+            player_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
+
+            
+            for wall in player_hit_list: 
+                if player.y_speed > 0: #if player is moving down and hits a wall,
+                    player.rect.bottom = wall.rect.top #set bottom of player to top of wall 
+                elif player.y_speed < 0: # Same as above but opposite (moving up)
+                    player.rect.top = wall.rect.bottom
+            
+          
+
+                                
 
 #Pygame lists for collisions 
 
@@ -123,7 +129,7 @@ pygame.display.set_caption("Fighter Game")
 
 
 #Create instance of player and add it to relevant lists 
-player = Player()
+player = Player(200,200)
 player_list.add(player)
 all_sprites_list.add(player)
 
@@ -148,9 +154,28 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+        elif event.type == pygame.KEYDOWN:     #Making the player move. 
+            if event.key == pygame.K_LEFT:     #If you want to go left, you -3 from the x coordinate.
+                player.move(-3,0)
+            elif event.key == pygame.K_RIGHT:
+                player.move(3,0)
+            elif event.key == pygame.K_UP:     #If you want to go up, you -3 from the y coordinate
+                player.move(0,-3)
+            elif event.key == pygame.K_DOWN:
+                player.move(0,3)
+
+        elif event.type == pygame.KEYUP:      #Making the player stop
+            if event.key == pygame.K_LEFT:    #Since you want the player to stop, you have to do the opposite
+                player.move(3,0)              #action as above so that 0 gets added to the x or y
+            elif event.key == pygame.K_RIGHT:
+                player.move(-3,0)
+            elif event.key == pygame.K_UP:
+                player.move(0,3)
+            elif event.key == pygame.K_DOWN:
+                player.move(0,-3)
  
     # --- Game logic should go here
-  
+    all_sprites_list.update()
     # --- Screen-clearing code goes here
  
     # Here, we clear the screen to white. Don't put other drawing commands
@@ -159,9 +184,7 @@ while not done:
     # If you want a background image, replace this clear with blit'ing the
     # background image.
     screen.fill(BLACK)
-    all_sprites_list.update
     
- 
     # --- Drawing code should go here
     all_sprites_list.draw(screen)
  

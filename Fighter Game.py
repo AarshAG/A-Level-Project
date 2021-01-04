@@ -31,7 +31,7 @@ maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 
 #Initialise Pygame
 pygame.init()
- 
+
 #Classes
 
 class Wall(pygame.sprite.Sprite):
@@ -48,7 +48,7 @@ class Wall(pygame.sprite.Sprite):
         self.rect.y = y
 
 
-        
+
 class Player(pygame.sprite.Sprite):
          def __init__(self,x,y):
              super().__init__()
@@ -59,20 +59,20 @@ class Player(pygame.sprite.Sprite):
              self.level = 0
              self.x_speed = 0
              self.y_speed = 0
-        
+
              #Set player image and location
              self.image = pygame.image.load("PlayerGuy.png").convert()
              self.image.set_colorkey(BLACK)
              self.rect=self.image.get_rect()
              self.rect.x=100
              self.rect.y=100
-        
+
          def move(self,x,y):
 
              #Adds the movement values to the x and y of player
              self.x_speed += x
              self.y_speed += y
-        
+
          def update(self):
 
             #Moves the player on x-axis
@@ -85,27 +85,56 @@ class Player(pygame.sprite.Sprite):
                 if player.x_speed > 0:                  #if the player is moving right and it hits a wall
                     player.rect.right = wall.rect.left  #Set right edge of player to left edge of wall to stop it going through
                 elif player.x_speed < 0:                #Same as above, but the opposite (moving left)
-                    player.rect.left = wall.rect.rig
+                    player.rect.left = wall.rect.right
 
             #Moves player on y-axis
             self.rect.y += self.y_speed
-            
+
             #Check if player collides with an object in wall_list, if it does, add to
             # player_hit_list.
             player_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
 
-            
-            for wall in player_hit_list: 
+
+            for wall in player_hit_list:
                 if player.y_speed > 0: #if player is moving down and hits a wall,
-                    player.rect.bottom = wall.rect.top #set bottom of player to top of wall 
+                    player.rect.bottom = wall.rect.top #set bottom of player to top of wall
                 elif player.y_speed < 0: # Same as above but opposite (moving up)
                     player.rect.top = wall.rect.bottom
-            
-          
 
-                                
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
 
-#Pygame lists for collisions 
+        self.image = pygame.Surface([15, 15])
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        x_speed = 0
+        y_speed = 0
+        self.rect.x = player.rect.x         #Make the bullet spawn where the player is at
+        self.rect.y = player.rect.y
+
+        pos = pygame.mouse.get_pos()        #Get mouse position
+        mouse_x = pos[0]                    #Get x coordinate of mouse position
+        mouse_y = pos[1]                    #Get y coordinate of mouse position
+        rise = mouse_x - player.rect.x      #Work out the width difference between player and mouse
+        run = mouse_y - player.rect.y       #Work out the height difference between player and mouse
+        self.x_speed = rise/50              #Set the movement vectors as the difference between player and mouse so bullet goes to mouse
+        self.y_speed = run/50               #Divide by 10 to slow down the bullet (goes too fast otherwise)
+
+
+
+    def update(self):
+
+        self.rect.x += self.x_speed         #Add the speeds onto the coordinates of the bullet
+        self.rect.y += self.y_speed
+
+
+
+
+
+
+
+#Pygame lists for collisions
 
 all_sprites_list = pygame.sprite.Group()
 
@@ -128,7 +157,7 @@ pygame.display.set_caption("Fighter Game")
 
 
 
-#Create instance of player and add it to relevant lists 
+#Create instance of player and add it to relevant lists
 player = Player(200,200)
 player_list.add(player)
 all_sprites_list.add(player)
@@ -154,7 +183,7 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        elif event.type == pygame.KEYDOWN:     #Making the player move. 
+        elif event.type == pygame.KEYDOWN:     #Making the player move.
             if event.key == pygame.K_LEFT:     #If you want to go left, you -3 from the x coordinate.
                 player.move(-3,0)
             elif event.key == pygame.K_RIGHT:
@@ -163,6 +192,10 @@ while not done:
                 player.move(0,-3)
             elif event.key == pygame.K_DOWN:
                 player.move(0,3)
+            elif event.key == pygame.K_SPACE:
+                bullet = Bullet()
+                bullet_list.add(bullet)
+                all_sprites_list.add(bullet)
 
         elif event.type == pygame.KEYUP:      #Making the player stop
             if event.key == pygame.K_LEFT:    #Since you want the player to stop, you have to do the opposite
@@ -173,26 +206,35 @@ while not done:
                 player.move(0,3)
             elif event.key == pygame.K_DOWN:
                 player.move(0,-3)
- 
+
     # --- Game logic should go here
     all_sprites_list.update()
-    # --- Screen-clearing code goes here
- 
-    # Here, we clear the screen to white. Don't put other drawing commands
-    # above this, or they will be erased with this command.
- 
+
+    while len(bullet_list) > 3:             #Makes it so that only 3 bullets can be on the screen at a time
+            bullet_list.remove(bullet)
+            all_sprites_list.remove(bullet)
+
+            
+    for bullet in bullet_list:              #Remove bullet if it collides with wall
+        if pygame.sprite.spritecollide(bullet, wall_list, False):
+            bullet_list.remove(bullet)
+            all_sprites_list.remove(bullet)
+
+
+
+
     # If you want a background image, replace this clear with blit'ing the
     # background image.
     screen.fill(BLACK)
-    
+
     # --- Drawing code should go here
     all_sprites_list.draw(screen)
- 
+
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
- 
+
     # --- Limit to 60 frames per second
     clock.tick(60)
- 
+
 # Close the window and quit.
 pygame.quit()

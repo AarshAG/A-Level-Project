@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -12,36 +13,23 @@ HEIGHT = 800
 
 
 
-maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1],
+        [1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 
 #Initialise Pygame
 pygame.init()
@@ -53,7 +41,7 @@ class Wall(pygame.sprite.Sprite):
         super().__init__()
 
         #Makes a wall with size 40x40
-        self.image = pygame.surface.Surface([40,40])
+        self.image = pygame.surface.Surface([100,100])
         self.image.fill(BLUE)
 
         #Make the wall where we pass in the x and y paramaters
@@ -108,7 +96,6 @@ class Player(pygame.sprite.Sprite):
             # player_hit_list.
             player_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
 
-
             for wall in player_hit_list:
                 if player.y_speed > 0: #if player is moving down and hits a wall,
                     player.rect.bottom = wall.rect.top #set bottom of player to top of wall
@@ -116,32 +103,35 @@ class Player(pygame.sprite.Sprite):
                     player.rect.top = wall.rect.bottom
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,mouse_x,mouse_y):
         super().__init__()
 
         self.image = pygame.Surface([15, 15])
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
-        x_speed = 0
-        y_speed = 0
-        self.rect.x = player.rect.x         #Make the bullet spawn where the player is at
+
+        
+        speed = 5
+        self.rect.x = player.rect.x        #Make the bullet spawn where the player is at
         self.rect.y = player.rect.y
-
-        pos = pygame.mouse.get_pos()        #Get mouse position
-        mouse_x = pos[0]                    #Get x coordinate of mouse position
-        mouse_y = pos[1]                    #Get y coordinate of mouse position
-        rise = mouse_x - player.rect.x      #Work out the width difference between player and mouse
-        run = mouse_y - player.rect.y       #Work out the height difference between player and mouse
-        self.x_speed = rise/50              #Set the movement vectors as the difference between player and mouse so bullet goes to mouse
-        self.y_speed = run/50               #Divide by 10 to slow down the bullet (goes too fast otherwise)
-
-
-
-    def update(self):
-
-        self.rect.x += self.x_speed         #Add the speeds onto the coordinates of the bullet
-        self.rect.y += self.y_speed
-
+                
+        x_difference = mouse_x - WIDTH/2         #Calculate distance between mouse and player
+        y_difference = mouse_y - HEIGHT/2          #for angle calculations below
+        
+        angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
+        self.x_change = math.cos(angle) * speed         #Multiply the angle with
+        self.y_change = math.sin(angle) * speed
+        self.x = self.rect.x                            #self.rect.x and self.rect.y are integers
+        self.y = self.rect.y                            #this results in highly inaccurate aiming,
+                                                        #the bullets don't go where the mouse is.
+    def update(self):                                   #self.x and self.x are floating points
+                                                        #which allows for more accuracy in calculations
+        self.x += self.x_change     
+        self.y += self.y_change
+        self.rect.x = int(self.x)                       #convert final answer back to integers
+        self.rect.y = int(self.y)                       #since rect can't be float
+    
+        
 class Camera(pygame.sprite.Sprite):
 
     def __init__(self,w,h):
@@ -157,11 +147,6 @@ class Camera(pygame.sprite.Sprite):
     def update(self, player):
         x = (player.rect.x*-1) + 400  #Keeps the player centered. Multiply by -1 because camera needs
         y = (player.rect.y*-1) + 400  #to move in oppposite direction to make it look like it's moving.
-        if x > 0:
-            x = 0
-        if y > 0:
-            y = 0
-            
                 
         self.camera = pygame.Rect(x,y, self.width, self.height)
 
@@ -197,10 +182,10 @@ player = Player(400,400)
 player_list.add(player)
 all_sprites_list.add(player)
 
-for y in range(30):
-    for x in range(30):
+for y in range(17):
+    for x in range(20):
         if maps[y][x] == 1:
-            wall=Wall(x*40, y*40)
+            wall=Wall(x*100, y*100)
             all_sprites_list.add(wall)
             wall_list.add(wall)
 
@@ -226,10 +211,18 @@ while not done:
                 player.move(0,-3)
             elif event.key == pygame.K_DOWN:
                 player.move(0,3)
+                
             elif event.key == pygame.K_SPACE:
-                bullet = Bullet()
+                pos = pygame.mouse.get_pos()        #Get mouse position
+                mouse_x = pos[0]                    #Get x coordinate of mouse position
+                mouse_y = pos[1]                    #Get y coordinate of mouse position
+
+                bullet = Bullet(mouse_x, mouse_y)
                 bullet_list.add(bullet)
                 all_sprites_list.add(bullet)
+                
+
+
 
         elif event.type == pygame.KEYUP:      #Making the player stop
             if event.key == pygame.K_LEFT:    #Since you want the player to stop, you have to do the opposite
@@ -245,29 +238,29 @@ while not done:
     all_sprites_list.update()
     camera = Camera(WIDTH,HEIGHT) #Create an instantiation of camera class
     camera.update(player)    #Update the camera so that the player moves around.
-
+    pos = pygame.mouse.get_pos()        #Get mouse position
+    mouse_x = pos[0]                    #Get x coordinate of mouse position
+    mouse_y = pos[1]
+    
+    
     while len(bullet_list) > 3:             #Makes it so that only 3 bullets can be on the screen at a time
             bullet_list.remove(bullet)
             all_sprites_list.remove(bullet)
 
-            
     for bullet in bullet_list:              #Remove bullet if it collides with wall
         if pygame.sprite.spritecollide(bullet, wall_list, False):
             bullet_list.remove(bullet)
             all_sprites_list.remove(bullet)
-
-
-
-
+ 
+    
     # If you want a background image, replace this clear with blit'ing the
     # background image.
     screen.fill(BLACK)
-
+    
     # --- Drawing code should go here
-
     for sprite in all_sprites_list:                         #The same as all_sprites_list.draw, however now,
         screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is 
-                                                            #rather than the start screen
+                                                             #rather than the start screen
         
 
     # --- Go ahead and update the screen with what we've drawn.

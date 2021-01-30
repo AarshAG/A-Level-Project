@@ -111,6 +111,13 @@ class Player(pygame.sprite.Sprite):
                 elif player.y_speed < 0: # Same as above but opposite (moving up)
                     player.rect.top = wall.rect.bottom
 
+            #Displaying health, score, etc to user
+            self.font = pygame.font.SysFont("Serif", 40)
+            self.text = self.font.render("Health: " + str(self.health) + " Score: " + str(self.score) + " Kills: " + str(enemy_kills), True, BLUE)
+            self.text_x = 0
+            self.text_y = 0
+
+     
 class Bullet(pygame.sprite.Sprite):
     def __init__(self,mouse_x,mouse_y):
         super().__init__()
@@ -236,6 +243,7 @@ for y in range(24):
 
 
 # Loop until the user clicks the close button.
+enemy_kills = 0
 done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
@@ -343,10 +351,10 @@ while not done and startscreen == False:
            player.rect.x = lastxpos
            player.rect.y = lastypos
         if enemy.health <= 0:
-            
             enemy_hit_list.remove(enemy)
             enemy_list.remove(enemy)
             all_sprites_list.remove(enemy)
+            
 
     for bullet in bullet_list:                                                  #If a bullet collides with enemy,                                                 
         enemy_hit_list = pygame.sprite.spritecollide(bullet, enemy_list, False) #Add to enemy_hit_list
@@ -360,16 +368,16 @@ while not done and startscreen == False:
                 all_sprites_list.remove(enemy)
                 enemy_list.remove(enemy)
                 enemy_hit_list.remove(enemy)
-            
-        
-            
+                enemy_kills += 1
             
     if startscreen == False:
         screen.fill(BLACK)
         for sprite in all_sprites_list:                         #The same as all_sprites_list.draw, however now,
             screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is 
                                                                  #rather than the start screen
-        
+
+    #Displaying scoreboard at the top of the screen
+    screen.blit(player.text, [player.text_x, player.text_y])
 
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

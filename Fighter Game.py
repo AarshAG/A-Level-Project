@@ -18,19 +18,19 @@ maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,1,0,0,2,0,0,0,1,0,0,0,0,2,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,2,1,1,1,1,0,0,2,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,2,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,1,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,1,1,1,1,0,0,0,1,0,0,0,0,2,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,2,0,2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,2,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,2,0,1,0,2,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,2,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,2,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,1,1,1,0,0,0,2,0,1,0,0,0,1,0,0,2,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -67,7 +67,7 @@ class Player(pygame.sprite.Sprite):
              self.score = 0
              self.kills = 0
              self.level = 0
-             self.damage = 20
+             self.damage = 5
              self.x_speed = 0
              self.y_speed = 0
 
@@ -125,7 +125,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.image.load("bullet.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.damage = 30
+        self.damage = 10
 
         
         speed = 5
@@ -162,9 +162,41 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-    
+
+class EnemyBullet(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.image = pygame.image.load("enemybullet.png").convert()
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.damage = 3
+
+        speed = 8
+        self.rect.x = x       #Make the bullet spawn where the player is at
+        self.rect.y = y
+                
+        x_difference = player.rect.x - self.rect.x       #Calculate distance between player and enemy
+        y_difference = player.rect.y - self.rect.y    #for angle calculations below
+        
+        angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
+        self.x_change = math.cos(angle) * speed         #Multiply the angle with
+        self.y_change = math.sin(angle) * speed
+        self.x = self.rect.x                            #self.rect.x and self.rect.y are integers
+        self.y = self.rect.y                            #this results in highly inaccurate aiming,
+                                                        #the bullets don't go where the mouse is.
+    def update(self):                                   #self.x and self.x are floating points
+                                                        #which allows for more accuracy in calculations
+        self.x += self.x_change     
+        self.y += self.y_change
+        self.rect.x = int(self.x)                       #convert final answer back to integers
+        self.rect.y = int(self.y)                       #since rect can't be float
+
         
 class Camera(pygame.sprite.Sprite):
+    
 
     def __init__(self,w,h):
         super().__init__()
@@ -173,8 +205,8 @@ class Camera(pygame.sprite.Sprite):
         self.width = w
         self.height = h
 
-    def movement(self, object):
-        return object.rect.move(self.camera.topleft) #Moves the sprites around the same as the camera movement
+    def movement(self, hello):
+        return hello.rect.move(self.camera.topleft) #Moves the sprites around the same as the camera movement
 
     def update(self, player):
         x = (player.rect.x*-1) + 400  #Keeps the player centered. Multiply by -1 because camera needs
@@ -337,9 +369,12 @@ while not done and startscreen == False:
  
     # --------------------------------------------------- #
 
-    # -------- Collision between player, bullets, and enemy ------- #
 
-    enemy_hit_list = pygame.sprite.spritecollide(player, enemy_list, False)
+
+    # -------- Collision between player, bullets, and enemy ------- #
+    
+    #Player collision with enemy
+    enemy_hit_list = pygame.sprite.spritecollide(player, enemy_list, False)     
     
     for enemy in enemy_hit_list:
         
@@ -355,7 +390,8 @@ while not done and startscreen == False:
             enemy_list.remove(enemy)
             all_sprites_list.remove(enemy)
             
-
+            
+    #Player bullet collision with enemy
     for bullet in bullet_list:                                                  #If a bullet collides with enemy,                                                 
         enemy_hit_list = pygame.sprite.spritecollide(bullet, enemy_list, False) #Add to enemy_hit_list
         
@@ -369,21 +405,72 @@ while not done and startscreen == False:
                 enemy_list.remove(enemy)
                 enemy_hit_list.remove(enemy)
                 enemy_kills += 1
-            
-    if startscreen == False:
+
+
+    #Enemy bullet collision with wall
+    for enemybullet in enemy_bullet_list:
+        if pygame.sprite.spritecollide(enemybullet, wall_list, False):  #If enemy bullet collides with a wall, remove it
+            all_sprites_list.remove(enemybullet)
+            enemy_bullet_list.remove(enemybullet)
+
+    #Enemy bullet collision with player
+
+    player_hit_list = pygame.sprite.spritecollide(player, enemy_bullet_list, False)
+
+    for enemybullet in player_hit_list:
+
+        player.health -= enemybullet.damage
+        all_sprites_list.remove(enemybullet)
+        enemy_bullet_list.remove(enemybullet)
+        player_hit_list.remove(enemybullet)
+        
+ 
+
+                
+    # -------------------------------------------------------------- #
+
+    # ---------- Enemies shooting at player ---------- #
+
+    playerx = player.rect.x
+    playery = player.rect.y
+
+    for enemy in enemy_list:
+        enemyx = enemy.rect.x
+        enemyy = enemy.rect.y
+
+        distance = math.sqrt((playerx-enemyx)**2 + (playery-enemyy)**2)  #Calculate distance from player to enemy in pixels using pythagorus
+        
+        if distance <= 400:                         #If player is within 400 pixels of enemy, enemy will shoot at player
+            randomv = random.randint(1,30)          #Shoot on average twice a second
+            if randomv == 1:
+                enemybullet = EnemyBullet(enemy.rect.x+40, enemy.rect.y+20) #Makes bullet spawn in the middle of enemy
+                enemy_bullet_list.add(enemybullet)
+                all_sprites_list.add(enemybullet)
+        
+    if player.health <= 0:
+        screen.fill(BLACK)
+        
+        font = pygame.font.SysFont("Arial", 50)
+        
+        death_text = font.render("You died", True, WHITE, BLACK)
+        
+        screen.blit(death_text, [400-(death_text.get_width() // 2), 400])
+        pygame.display.update()
+
+        
+    # ----------------- Displaying things on screen --------------- #
+    if startscreen == False and player.health > 0:
         screen.fill(BLACK)
         for sprite in all_sprites_list:                         #The same as all_sprites_list.draw, however now,
-            screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is 
-                                                                 #rather than the start screen
+            screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is rather than the window itself                                                               #rather than the start screen
 
-    #Displaying scoreboard at the top of the screen
-    screen.blit(player.text, [player.text_x, player.text_y])
+        screen.blit(player.text, [player.text_x, player.text_y])    #Blitting scoreboard
 
-    # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
 
-    # --- Limit to 60 frames per second
     clock.tick(60)
+
+    # --------------------------------------------------------------- #
 
 # Close the window and quit.
 pygame.quit()

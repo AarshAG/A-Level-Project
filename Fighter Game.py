@@ -18,16 +18,16 @@ maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,1,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,1,1,1,1,0,0,0,1,0,0,0,0,2,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,2,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,2,0,2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,2,0,2,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1],
         [1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1], 
+        [1,1,1,1,0,2,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
@@ -41,6 +41,8 @@ maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 
 #Initialise Pygame
 pygame.init()
+
+HIGHSCORE_FILE = ("highscore.rtf")
 
 # --------------------- Classes --------------------- #
 
@@ -156,13 +158,19 @@ class Enemy(pygame.sprite.Sprite):
         
         self.health = 30
         self.score = 10
-        self.damage = 20
+        self.damage = 5
+        self.speed = 1
         self.image= pygame.image.load("enemy.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
+        self.x_speed = 0
+        self.y_speed = 0
+                
+        
+            
+            
 class EnemyBullet(pygame.sprite.Sprite):
 
     def __init__(self,x,y):
@@ -174,16 +182,16 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.damage = 3
 
-        speed = 8
+        self.speed = 8
         self.rect.x = x       #Make the bullet spawn where the player is at
         self.rect.y = y
                 
         x_difference = player.rect.x - self.rect.x       #Calculate distance between player and enemy
         y_difference = player.rect.y - self.rect.y    #for angle calculations below
         
-        angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
-        self.x_change = math.cos(angle) * speed         #Multiply the angle with
-        self.y_change = math.sin(angle) * speed
+        self.angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
+        self.x_change = math.cos(self.angle) * self.speed         #Multiply the angle with
+        self.y_change = math.sin(self.angle) * self.speed
         self.x = self.rect.x                            #self.rect.x and self.rect.y are integers
         self.y = self.rect.y                            #this results in highly inaccurate aiming,
                                                         #the bullets don't go where the mouse is.
@@ -216,9 +224,7 @@ class Camera(pygame.sprite.Sprite):
 
 
 # --------------------------------------------------- #
-
-
-#Functions
+        
 
 
 #Pygame lists for collisions
@@ -274,8 +280,10 @@ for y in range(24):
 
 
 
-# Loop until the user clicks the close button.
+
 enemy_kills = 0
+highscore = 0
+                  
 done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
@@ -346,12 +354,19 @@ while not done and startscreen == False:
     # --- Game logic should go here
     lastxpos = player.rect.x
     lastypos = player.rect.y
+
+    for enemy in enemy_list:
+        enemy.last_x_pos = enemy.rect.x
+        enemy.last_y_pos = enemy.rect.y
     
     all_sprites_list.update()
     
     camera = Camera(WIDTH,HEIGHT) #Create an instantiation of camera class
     camera.update(player)    #Update the camera so that the player moves around.
+    
 
+
+   
 
 
                     # --- Collisions --- #
@@ -429,42 +444,111 @@ while not done and startscreen == False:
                 
     # -------------------------------------------------------------- #
 
-    # ---------- Enemies shooting at player ---------- #
 
-    playerx = player.rect.x
-    playery = player.rect.y
 
+    # ---------- Enemies shooting at player --------- #
+
+    
     for enemy in enemy_list:
         enemyx = enemy.rect.x
         enemyy = enemy.rect.y
+        playerx = player.rect.x
+        playery = player.rect.y
 
         distance = math.sqrt((playerx-enemyx)**2 + (playery-enemyy)**2)  #Calculate distance from player to enemy in pixels using pythagorus
-        
+
         if distance <= 400:                         #If player is within 400 pixels of enemy, enemy will shoot at player
             randomv = random.randint(1,30)          #Shoot on average twice a second
             if randomv == 1:
                 enemybullet = EnemyBullet(enemy.rect.x+40, enemy.rect.y+20) #Makes bullet spawn in the middle of enemy
                 enemy_bullet_list.add(enemybullet)
                 all_sprites_list.add(enemybullet)
-        
+
     if player.health <= 0:
         screen.fill(BLACK)
         
         font = pygame.font.SysFont("Arial", 50)
         
         death_text = font.render("You died", True, WHITE, BLACK)
+      
         
         screen.blit(death_text, [400-(death_text.get_width() // 2), 400])
+
         pygame.display.update()
 
+    # ------------------------------------------------- #
+
+
+
+    # ----------- Enemy movement and wall collision ---------- #
+    
+    for enemy in enemy_list:
         
+        enemy.x_speed = player.rect.x-enemy.rect.x
+        enemy.y_speed = player.rect.y-enemy.rect.y
+
+        enemy.distance = math.sqrt((enemy.x_speed**2) + (enemy.y_speed**2))
+
+        if enemy.distance <= 600 and enemy.distance >= 400:           
+            enemy.rect.x += enemy.x_speed/400
+            
+        elif enemy.distance <= 400:
+            enemy.rect.x += enemy.x_speed/200
+
+        elif enemy.distance <= 50:
+            enemy.x_speed = 0
+
+
+        for wall in wall_list:
+            enemy_hit_list = pygame.sprite.spritecollide(wall, enemy_list, False)
+
+            for enemy in enemy_hit_list:
+                if enemy.x_speed > 0:
+                    enemy.rect.right = wall.rect.left
+                elif enemy.x_speed < 0:
+                    enemy.rect.left = wall.rect.right
+            
+    
+
+        if enemy.distance <= 600 and enemy.distance >= 400:           
+            enemy.rect.y += enemy.y_speed/400
+            
+        elif enemy.distance <= 400:
+            enemy.rect.y += enemy.y_speed/200
+
+        elif enemy.distance <= 50:
+            enemy.y_speed = 0
+
+                
+        for wall in wall_list:
+            enemy_hit_list = pygame.sprite.spritecollide(wall, enemy_list, False)
+
+            for enemy in enemy_hit_list:
+
+                if enemy.y_speed > 0:
+                    enemy.rect.bottom = wall.rect.top
+                elif enemy.y_speed < 0:
+                    enemy.rect.top = wall.rect.bottom
+                            
+        
+            
+        
+    
+           
+        
+
     # ----------------- Displaying things on screen --------------- #
+    if highscore < player.score:
+        highscore = player.score
+
     if startscreen == False and player.health > 0:
         screen.fill(BLACK)
         for sprite in all_sprites_list:                         #The same as all_sprites_list.draw, however now,
             screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is rather than the window itself                                                               #rather than the start screen
 
         screen.blit(player.text, [player.text_x, player.text_y])    #Blitting scoreboard
+        hs_text = font.render("Highscore: " + str(highscore), True, WHITE)
+        screen.blit(hs_text, [0,800])
 
     pygame.display.flip()
 

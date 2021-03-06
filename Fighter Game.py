@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-
+from os import path
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -12,6 +12,13 @@ WIDTH = 800
 HEIGHT = 800
 
 
+# KEY
+# 0 = Nothing
+# 1 = Wall
+# 2 = Enemy
+# 3 = Portal
+# 4 = Coins
+
 maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -20,18 +27,18 @@ maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,2,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,2,0,2,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,4,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,2,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1],
         [1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1], 
-        [1,1,1,1,0,2,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+        [1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,3,3,1,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,3,3,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -42,7 +49,7 @@ maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 #Initialise Pygame
 pygame.init()
 
-HIGHSCORE_FILE = ("highscore.rtf")
+HIGHSCORE_FILE = ("highscore.txt")
 
 # --------------------- Classes --------------------- #
 
@@ -62,13 +69,14 @@ class Wall(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-         def __init__(self,x,y):
+         def __init__(self):
              super().__init__()
              self.health = 100
              self.xp = 0
              self.score = 0
              self.kills = 0
-             self.level = 0
+             self.level = 1
+             self.coins = 0
              self.damage = 5
              self.x_speed = 0
              self.y_speed = 0
@@ -77,8 +85,8 @@ class Player(pygame.sprite.Sprite):
              self.image = pygame.image.load("PlayerGuy.png").convert()
              self.image.set_colorkey(BLACK)
              self.rect=self.image.get_rect()
-             self.rect.x=x
-             self.rect.y=y
+             self.rect.x=500
+             self.rect.y=700
 
          def move(self,x,y):
 
@@ -113,13 +121,7 @@ class Player(pygame.sprite.Sprite):
                 elif player.y_speed < 0: # Same as above but opposite (moving up)
                     player.rect.top = wall.rect.bottom
 
-            #Displaying health, score, etc to user
-            self.font = pygame.font.SysFont("Serif", 40)
-            self.text = self.font.render("Health: " + str(self.health) + " Score: " + str(self.score) + " Kills: " + str(enemy_kills), True, BLUE)
-            self.text_x = 0
-            self.text_y = 0
 
-     
 class Bullet(pygame.sprite.Sprite):
     def __init__(self,mouse_x,mouse_y):
         super().__init__()
@@ -129,14 +131,14 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.damage = 10
 
-        
+
         speed = 5
         self.rect.x = player.rect.x        #Make the bullet spawn where the player is at
         self.rect.y = player.rect.y
-                
+
         x_difference = mouse_x - WIDTH/2         #Calculate distance between mouse and player
         y_difference = mouse_y - HEIGHT/2          #for angle calculations below
-        
+
         angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
         self.x_change = math.cos(angle) * speed         #Multiply the angle with
         self.y_change = math.sin(angle) * speed
@@ -145,7 +147,7 @@ class Bullet(pygame.sprite.Sprite):
                                                         #the bullets don't go where the mouse is.
     def update(self):                                   #self.x and self.x are floating points
                                                         #which allows for more accuracy in calculations
-        self.x += self.x_change     
+        self.x += self.x_change
         self.y += self.y_change
         self.rect.x = int(self.x)                       #convert final answer back to integers
         self.rect.y = int(self.y)                       #since rect can't be float
@@ -153,13 +155,14 @@ class Bullet(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
 
     def __init__(self,x,y):
-        
+
         super().__init__()
-        
+
         self.health = 30
         self.score = 10
         self.damage = 5
         self.speed = 1
+        self.distance = 0
         self.image= pygame.image.load("enemy.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
@@ -167,10 +170,33 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = y
         self.x_speed = 0
         self.y_speed = 0
-                
-        
-            
-            
+
+
+class Portal(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.image = pygame.image.load("nether.png").convert()
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+class Coin(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.image = pygame.image.load("coin1.png").convert()
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+
 class EnemyBullet(pygame.sprite.Sprite):
 
     def __init__(self,x,y):
@@ -185,10 +211,10 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.speed = 8
         self.rect.x = x       #Make the bullet spawn where the player is at
         self.rect.y = y
-                
+
         x_difference = player.rect.x - self.rect.x       #Calculate distance between player and enemy
         y_difference = player.rect.y - self.rect.y    #for angle calculations below
-        
+
         self.angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
         self.x_change = math.cos(self.angle) * self.speed         #Multiply the angle with
         self.y_change = math.sin(self.angle) * self.speed
@@ -197,14 +223,14 @@ class EnemyBullet(pygame.sprite.Sprite):
                                                         #the bullets don't go where the mouse is.
     def update(self):                                   #self.x and self.x are floating points
                                                         #which allows for more accuracy in calculations
-        self.x += self.x_change     
+        self.x += self.x_change
         self.y += self.y_change
         self.rect.x = int(self.x)                       #convert final answer back to integers
         self.rect.y = int(self.y)                       #since rect can't be float
 
-        
+
 class Camera(pygame.sprite.Sprite):
-    
+
 
     def __init__(self,w,h):
         super().__init__()
@@ -214,20 +240,39 @@ class Camera(pygame.sprite.Sprite):
         self.height = h
 
     def movement(self, hello):
-        return hello.rect.move(self.camera.topleft) #Moves the sprites around the same as the camera movement
+         return hello.rect.move(self.camera.topleft) #Moves the sprites around the same as the camera movement
 
     def update(self, player):
         x = (player.rect.x*-1) + 400  #Keeps the player centered. Multiply by -1 because camera needs
         y = (player.rect.y*-1) + 400  #to move in oppposite direction to make it look like it's moving.
-                
+
         self.camera = pygame.Rect(x,y, self.width, self.height)
 
 
+
+
 # --------------------------------------------------- #
-        
 
 
-#Pygame lists for collisions
+
+
+
+# ---------------------- Functions ---------------------- #
+
+def read_highscore():
+    print(hello)
+
+    
+            
+
+
+
+# ------------------------------------------------------ #
+
+
+
+
+# ------------- Pygame lists ------------- #
 
 all_sprites_list = pygame.sprite.Group()
 
@@ -246,6 +291,14 @@ wall_hit_list = pygame.sprite.Group()
 bullet_list = pygame.sprite.Group()
 bullet_hit_list = pygame.sprite.Group()
 
+portal_list = pygame.sprite.Group()
+portal_hit_list = pygame.sprite.Group()
+
+coin_list = pygame.sprite.Group()
+coin_hit_list = pygame.sprite.Group()
+
+# ---------------------------------------- #
+
 
 
 
@@ -256,11 +309,15 @@ pygame.display.set_caption("Fighter Game")
 startscreen_image = pygame.image.load("background.jpg").convert()
 
 
-    
+
 #Create instance of player and add it to relevant lists
-player = Player(500,650)
+player = Player()
 player_list.add(player)
 all_sprites_list.add(player)
+
+
+
+# ---------------- Loops to add objects to map ---------------- #
 
 for y in range(24):
     for x in range(26):
@@ -268,7 +325,7 @@ for y in range(24):
             wall=Wall(x*100, y*100)
             all_sprites_list.add(wall)
             wall_list.add(wall)
-            
+
 for y in range(24):
     for x in range(26):
         if maps[y][x] == 2:
@@ -276,35 +333,53 @@ for y in range(24):
             all_sprites_list.add(enemy)
             enemy_list.add(enemy)
 
+'Portal is created in while loop dependant on specific conditions'
+
+
+#randomcoin = random.randrange(1,4)
+for y in range(24):
+    for x in range(26):
+        if maps[y][x] == 4:
+            coin=Coin(x*100, y*100)
+            all_sprites_list.add(coin)
+            coin_list.add(coin)
+
+
+
+# ------------------------------------------------------------- #
 
 
 
 
+#Variables needed to be set before main loop
 
 enemy_kills = 0
-highscore = 0
-                  
 done = False
+startscreen = True
+coins_left = 0
+highscore = 120
+
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 
-    
-startscreen = True
+
 while startscreen == True:
     screen.fill(RED)
     screen.blit(startscreen_image, [0,0])
     font = pygame.font.SysFont("Arial", 50)
+    
     start_text = font.render("Fighter Game", True, WHITE, BLACK)
     instruction_text = font.render("Use your mouse to aim,", True, WHITE, BLACK)
     instruction_text2 = font.render("Press Space to shoot", True, WHITE, BLACK)
     instruction_text3 = font.render("Use arrow keys or WASD to move", True,WHITE,BLACK)
     space_text= font.render("Press Space to Play", True, WHITE, BLACK)
-    
+    hs_text = font.render("Highscore: " + str(highscore), True,WHITE,BLACK)
     screen.blit(start_text, [400-(start_text.get_width() // 2), 200])               #Puts the text in the middle
     screen.blit(instruction_text, [400-(instruction_text.get_width() // 2), 300])
     screen.blit(instruction_text2, [400-(instruction_text2.get_width() // 2), 400])
     screen.blit(instruction_text3, [400-(instruction_text3.get_width() // 2), 500])
     screen.blit(space_text, [400-(space_text.get_width() // 2), 600])
+    screen.blit(hs_text, [(400-hs_text.get_width() // 2), 700])
     pygame.display.update()
 
     for event in pygame.event.get():        #Exit the startscreen if the user hits space
@@ -313,9 +388,10 @@ while startscreen == True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 startscreen = False
-    
 
-       
+
+#Top
+
 # -------- Main Program Loop -----------
 while not done and startscreen == False:
     # --- Main event loop
@@ -331,7 +407,7 @@ while not done and startscreen == False:
                 player.move(0,-3)
             elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                 player.move(0,3)
-                
+
             elif event.key == pygame.K_SPACE:
                 pos = pygame.mouse.get_pos()        #Get mouse position
                 mouse_x = pos[0]                    #Get x coordinate of mouse position
@@ -340,7 +416,7 @@ while not done and startscreen == False:
                 bullet = Bullet(mouse_x, mouse_y)
                 bullet_list.add(bullet)
                 all_sprites_list.add(bullet)
-                
+
         elif event.type == pygame.KEYUP:      #Making the player stop
             if event.key == pygame.K_LEFT or event.key == pygame.K_a:    #Since you want the player to stop, you have to do the opposite
                 player.move(3,0)              #action as above so that 0 gets added to the x or y
@@ -358,21 +434,21 @@ while not done and startscreen == False:
     for enemy in enemy_list:
         enemy.last_x_pos = enemy.rect.x
         enemy.last_y_pos = enemy.rect.y
-    
+
     all_sprites_list.update()
-    
+
     camera = Camera(WIDTH,HEIGHT) #Create an instantiation of camera class
     camera.update(player)    #Update the camera so that the player moves around.
-    
 
 
-   
+
+
 
 
                     # --- Collisions --- #
-    
+
     # -------- Collision between bullet and wall -------- #
-    
+
     while len(bullet_list) > 3:             #Makes it so that only 3 bullets can be on the screen at a time
             bullet_list.remove(bullet)
             all_sprites_list.remove(bullet)
@@ -381,22 +457,22 @@ while not done and startscreen == False:
         if pygame.sprite.spritecollide(bullet, wall_list, False):
             bullet_list.remove(bullet)
             all_sprites_list.remove(bullet)
- 
+
     # --------------------------------------------------- #
 
 
 
     # -------- Collision between player, bullets, and enemy ------- #
-    
+
     #Player collision with enemy
-    enemy_hit_list = pygame.sprite.spritecollide(player, enemy_list, False)     
-    
+    enemy_hit_list = pygame.sprite.spritecollide(player, enemy_list, False)
+
     for enemy in enemy_hit_list:
-        
+
         enemy.health -= player.damage
         player.health -= enemy.damage
         player.score += enemy.score
-        
+
         if pygame.sprite.spritecollide(player, enemy_list, False):
            player.rect.x = lastxpos
            player.rect.y = lastypos
@@ -404,14 +480,14 @@ while not done and startscreen == False:
             enemy_hit_list.remove(enemy)
             enemy_list.remove(enemy)
             all_sprites_list.remove(enemy)
-            
-            
+
+
     #Player bullet collision with enemy
-    for bullet in bullet_list:                                                  #If a bullet collides with enemy,                                                 
+    for bullet in bullet_list:                                                  #If a bullet collides with enemy,
         enemy_hit_list = pygame.sprite.spritecollide(bullet, enemy_list, False) #Add to enemy_hit_list
-        
-        for enemy in enemy_hit_list:            
-            enemy.health -= bullet.damage       #Take away health from enemy and add score to player 
+
+        for enemy in enemy_hit_list:
+            enemy.health -= bullet.damage       #Take away health from enemy and add score to player
             player.score += bullet.damage
             all_sprites_list.remove(bullet)     #Remove the bullet after collision
             bullet_list.remove(bullet)
@@ -438,17 +514,32 @@ while not done and startscreen == False:
         all_sprites_list.remove(enemybullet)
         enemy_bullet_list.remove(enemybullet)
         player_hit_list.remove(enemybullet)
-        
- 
 
-                
+
+
+
     # -------------------------------------------------------------- #
+
+
+    # ------------- Coins and Coin collisions ------------- #
+
+    player_hit_list = pygame.sprite.spritecollide(player, coin_list, False)
+
+    for coin in player_hit_list:
+        player.coins += 1
+        coin_list.remove(coin)
+        all_sprites_list.remove(coin)
+        coins_left -= 1
+
+
+
+
 
 
 
     # ---------- Enemies shooting at player --------- #
 
-    
+
     for enemy in enemy_list:
         enemyx = enemy.rect.x
         enemyy = enemy.rect.y
@@ -464,62 +555,56 @@ while not done and startscreen == False:
                 enemy_bullet_list.add(enemybullet)
                 all_sprites_list.add(enemybullet)
 
-    if player.health <= 0:
-        screen.fill(BLACK)
-        
-        font = pygame.font.SysFont("Arial", 50)
-        
-        death_text = font.render("You died", True, WHITE, BLACK)
-      
-        
-        screen.blit(death_text, [400-(death_text.get_width() // 2), 400])
-
-        pygame.display.update()
-
     # ------------------------------------------------- #
 
 
 
+
+
+
+
+
+
     # ----------- Enemy movement and wall collision ---------- #
-    
+
     for enemy in enemy_list:
-        
-        enemy.x_speed = player.rect.x-enemy.rect.x
-        enemy.y_speed = player.rect.y-enemy.rect.y
 
-        enemy.distance = math.sqrt((enemy.x_speed**2) + (enemy.y_speed**2))
+        enemy.x_speed = player.rect.x-enemy.rect.x  #Calculate horizontal distance from player to enemy
+        enemy.y_speed = player.rect.y-enemy.rect.y  #Calculate vertical distance
 
-        if enemy.distance <= 600 and enemy.distance >= 400:           
+        enemy.distance = math.sqrt((enemy.x_speed**2) + (enemy.y_speed**2)) #Calculate actual distance using pythagorus' theorum
+
+        if enemy.distance <= 600 and enemy.distance >= 400:         #Depending on distance, change speed
             enemy.rect.x += enemy.x_speed/400
-            
+
         elif enemy.distance <= 400:
-            enemy.rect.x += enemy.x_speed/200
+            enemy.rect.x += enemy.x_speed/200                       #The closer the enemy, the slower it'll go
 
         elif enemy.distance <= 50:
             enemy.x_speed = 0
 
 
         for wall in wall_list:
-            enemy_hit_list = pygame.sprite.spritecollide(wall, enemy_list, False)
+            enemy_hit_list = pygame.sprite.spritecollide(wall, enemy_list, False)   #Same as player collision.
 
-            for enemy in enemy_hit_list:
-                if enemy.x_speed > 0:
+            for enemy in enemy_hit_list:                #If moving right and you hit a wall, set the right edge of the enemy to left edge of wall
+                if enemy.x_speed > 0:                   #to stop it moving any further.
                     enemy.rect.right = wall.rect.left
                 elif enemy.x_speed < 0:
                     enemy.rect.left = wall.rect.right
-            
-    
 
-        if enemy.distance <= 600 and enemy.distance >= 400:           
-            enemy.rect.y += enemy.y_speed/400
-            
+
+
+        if enemy.distance <= 600 and enemy.distance >= 400:                 #The X and Y movements must be done seperately to avoid huge glitches
+            enemy.rect.y += enemy.y_speed/400                               #Calculating seperately allows for much smoother movement, and for the code to actual work
+
         elif enemy.distance <= 400:
             enemy.rect.y += enemy.y_speed/200
 
         elif enemy.distance <= 50:
             enemy.y_speed = 0
 
-                
+
         for wall in wall_list:
             enemy_hit_list = pygame.sprite.spritecollide(wall, enemy_list, False)
 
@@ -529,26 +614,303 @@ while not done and startscreen == False:
                     enemy.rect.bottom = wall.rect.top
                 elif enemy.y_speed < 0:
                     enemy.rect.top = wall.rect.bottom
-                            
-        
-            
-        
-    
-           
-        
+
+
+
+
+    # ------------------------- Next Levels ------------------------- #
+
+
+
+    if len(enemy_list) == 0 and len(coin_list) == 0:  #If there are no enemies, coins (meaning player has beaten level), create new level
+
+         oldhealth = player.health #Save old player stats before deleting them and making a new player instance
+         oldxp = player.xp
+         oldscore = player.score
+         oldkills = player.kills
+         oldcoins = player.coins
+         oldlevel = player.level
+
+
+         if len(portal_list) == 0:
+             for y in range(24):                         #Create portal
+                 for x in range(26):
+                    if maps[y][x] == 3:
+                        portal=Portal(x*100, y*100)
+                        all_sprites_list.add(portal)
+                        portal_list.add(portal)
+
+         portal_hit_list = pygame.sprite.spritecollide(player, portal_list, False)
+
+         if len(portal_hit_list) != 0:                   #Remove everything from current level
+                for wall in all_sprites_list:
+                    all_sprites_list.remove(wall)
+                for wall in wall_list:
+                    wall_list.remove(wall)
+                    all_sprites_list.remove(player)
+                    player_list.remove(player)
+
+
+
+                 # KEY
+                 # 0 = Nothing
+                 # 1 = Wall
+                 # 2 = Enemy
+                 # 3 = Portal
+                 # 4 = Coins
+                 # 5 = Player spawnpoint
+
+                
+                randommap = random.randint(1,4)
+
+
+                if randommap == 1:
+
+                    maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,5,0,0,0,1,0,0,0,0,2,0,0,2,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,2,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,2,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,2,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,1,1,1,1,1,0,0,2,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,2,0,0,2,0,0,1,0,2,0,0,2,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+
+                elif randommap == 2:
+
+                    maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,5,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,0,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,0,0,0,1,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,2,0,1,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,2,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,2,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,2,0,2,1,0,0,0,0,2,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+
+                elif randommap == 3:
+
+                    maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,5,0,1,0,0,2,0,1,0,0,0,0,2,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,2,1,0,0,2,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,2,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,2,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,2,0,0,2,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,2,1,0,0,0,1,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+
+                elif randommap == 4:
+
+                    maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,5,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+
+                for y in range(24):
+                    for x in range(26):
+                        if maps[y][x] == 1:
+                            wall=Wall(x*100, y*100)
+                            all_sprites_list.add(wall)
+                            wall_list.add(wall)
+
+
+                for y in range(24):
+                    for x in range(26):
+                        if maps[y][x] == 2:
+                            randomenemy = random.randint(1,4)
+                            if randomenemy == 1:
+                                enemy=Enemy(x*100, y*100)
+                                all_sprites_list.add(enemy)
+                                enemy_list.add(enemy)
+
+
+                for y in range(24):
+                    for x in range(26):
+                        if maps[y][x] == 4:
+                            coin=Coin(x*100, y*100)
+                            all_sprites_list.add(coin)
+                            coin_list.add(coin)
+
+                if len(enemy_list) and len (coin_list) != 0:
+                    for portal in portal_list:
+                        portal_list.remove(portal)
+                    for portal in all_sprites_list:
+                        all_sprites_list.remove(portal)
+
+                player = Player()
+                player_list.add(player)
+                all_sprites_list.add(player)
+                player.health = oldhealth
+                player.score = oldscore
+                player.xp = oldxp
+                player.kills = oldkills
+                player.coins = oldcoins
+                player.level = oldlevel + 1
+
+                if player.move(3,3):
+                    player.move(-3,-3)
+                    
+                elif player.move(-3,3):
+                    player.move(3,-3)
+                    
+                elif player.move(3,-3):
+                    player.move(-3,3)
+
+                elif player.move(0,3):
+                    player.move(0,-3)
+
+                elif player.move(0,-3):
+                    player.move(0,3)
+
+                elif player.move(3,0):
+                    player.move(-3,0)
+
+                elif player.move(-3,0):
+                    player.move(3,0)
+
+
+  
+
+
+
+
+
+
+
+
+
+    # -------------------------------------------------------- #
+
+
+
 
     # ----------------- Displaying things on screen --------------- #
+
+
+    ' -- Highscore + Player Scoreboard + Level information -- '
     if highscore < player.score:
         highscore = player.score
 
-    if startscreen == False and player.health > 0:
+    if startscreen == False and player.health > 0:      #Only display the scoreboard if the player is alive and the game is playing
         screen.fill(BLACK)
         for sprite in all_sprites_list:                         #The same as all_sprites_list.draw, however now,
             screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is rather than the window itself                                                               #rather than the start screen
 
-        screen.blit(player.text, [player.text_x, player.text_y])    #Blitting scoreboard
-        hs_text = font.render("Highscore: " + str(highscore), True, WHITE)
-        screen.blit(hs_text, [0,800])
+
+
+        pygame.draw.line(screen, BLACK, [0,784],[800,784],50)
+        #Displaying health, score, etc to user
+
+        font = pygame.font.SysFont("hiraginosansgb", 30, True)
+        text = font.render("Health: " + str(player.health) + " Score: " + str(player.score) + " Kills: " + str(enemy_kills) + " Coins: " + str(player.coins), True, WHITE)
+        text_x = (400-(text.get_width() // 2))
+        text_y = 768
+        screen.blit(text, [text_x, text_y])    #Blitting scoreboard
+
+        font = pygame.font.SysFont("Aerial", 30, False, False)
+
+        highscore_text = font.render("Highscore: " + str(highscore), False, WHITE)
+        enemy_remain_text = font.render("Enemies Remaining: " + str(len(enemy_list)), False, WHITE)
+        coin_remain_text = font.render("Coins Remaining: " + str(len(coin_list)), False, WHITE)
+
+        font = pygame.font.SysFont("Aerial", 60, False, False)
+        level_text = font.render("Level: " + str(player.level), False, WHITE)
+
+        screen.blit(highscore_text, [0,0])
+        screen.blit(enemy_remain_text, [0,30])
+        screen.blit(coin_remain_text, [0,60])
+
+        screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
+
+        #Death screen
+
+        if player.health <= 0:
+            screen.fill(BLACK)
+
+            font = pygame.font.SysFont("Arial", 50)
+            
+            death_text = font.render("You died", True, WHITE, BLACK)
+                                 
+            screen.blit(death_text, [400-(death_text.get_width() // 2), 400])
+                    
+        pygame.display.update()
+
+
+
 
     pygame.display.flip()
 

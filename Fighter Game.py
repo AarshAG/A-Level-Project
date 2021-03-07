@@ -260,7 +260,7 @@ class Camera(pygame.sprite.Sprite):
 # ---------------------- Functions ---------------------- #
 
 def read_highscore():
-    print(hello)
+    (hello)
 
     
             
@@ -363,37 +363,12 @@ highscore = 120
 clock = pygame.time.Clock()
 
 
-while startscreen == True:
-    screen.fill(RED)
-    screen.blit(startscreen_image, [0,0])
-    font = pygame.font.SysFont("Arial", 50)
-    
-    start_text = font.render("Fighter Game", True, WHITE, BLACK)
-    instruction_text = font.render("Use your mouse to aim,", True, WHITE, BLACK)
-    instruction_text2 = font.render("Press Space to shoot", True, WHITE, BLACK)
-    instruction_text3 = font.render("Use arrow keys or WASD to move", True,WHITE,BLACK)
-    space_text= font.render("Press Space to Play", True, WHITE, BLACK)
-    hs_text = font.render("Highscore: " + str(highscore), True,WHITE,BLACK)
-    screen.blit(start_text, [400-(start_text.get_width() // 2), 200])               #Puts the text in the middle
-    screen.blit(instruction_text, [400-(instruction_text.get_width() // 2), 300])
-    screen.blit(instruction_text2, [400-(instruction_text2.get_width() // 2), 400])
-    screen.blit(instruction_text3, [400-(instruction_text3.get_width() // 2), 500])
-    screen.blit(space_text, [400-(space_text.get_width() // 2), 600])
-    screen.blit(hs_text, [(400-hs_text.get_width() // 2), 700])
-    pygame.display.update()
-
-    for event in pygame.event.get():        #Exit the startscreen if the user hits space
-        if event.type == pygame.QUIT:
-            pygame.quit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                startscreen = False
 
 
 #Top
 
 # -------- Main Program Loop -----------
-while not done and startscreen == False:
+while not done:
     # --- Main event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -427,6 +402,34 @@ while not done and startscreen == False:
             elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                 player.move(0,-3)
 
+    while startscreen == True:
+        
+        screen.fill(RED)
+        screen.blit(startscreen_image, [0,0])
+        font = pygame.font.SysFont("Arial", 50)
+        
+        start_text = font.render("Fighter Game", True, WHITE, BLACK)
+        instruction_text = font.render("Use your mouse to aim,", True, WHITE, BLACK)
+        instruction_text2 = font.render("Press Space to shoot", True, WHITE, BLACK)
+        instruction_text3 = font.render("Use arrow keys or WASD to move", True,WHITE,BLACK)
+        space_text= font.render("Press Space to Play", True, WHITE, BLACK)
+        hs_text = font.render("Highscore: " + str(highscore), True,WHITE,BLACK)
+        screen.blit(start_text, [400-(start_text.get_width() // 2), 200])               #Puts the text in the middle
+        screen.blit(instruction_text, [400-(instruction_text.get_width() // 2), 300])
+        screen.blit(instruction_text2, [400-(instruction_text2.get_width() // 2), 400])
+        screen.blit(instruction_text3, [400-(instruction_text3.get_width() // 2), 500])
+        screen.blit(space_text, [400-(space_text.get_width() // 2), 600])
+        screen.blit(hs_text, [(400-hs_text.get_width() // 2), 700])
+        pygame.display.update()
+
+        for event in pygame.event.get():        #Exit the startscreen if the user hits space
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    startscreen = False
+                
+
     # --- Game logic should go here
     lastxpos = player.rect.x
     lastypos = player.rect.y
@@ -442,7 +445,15 @@ while not done and startscreen == False:
 
 
 
+    #Death screen
 
+    if player.health <= 0:
+        screen.fill(BLACK)
+        font = pygame.font.SysFont("Arial", 50)
+        death_text = font.render("You died", True, WHITE, BLACK)
+        screen.blit(death_text, [400-(death_text.get_width() // 2), 400])
+                    
+        pygame.display.update()
 
 
                     # --- Collisions --- #
@@ -530,11 +541,6 @@ while not done and startscreen == False:
         coin_list.remove(coin)
         all_sprites_list.remove(coin)
         coins_left -= 1
-
-
-
-
-
 
 
     # ---------- Enemies shooting at player --------- #
@@ -642,13 +648,16 @@ while not done and startscreen == False:
 
          portal_hit_list = pygame.sprite.spritecollide(player, portal_list, False)
 
-         if len(portal_hit_list) != 0:                   #Remove everything from current level
+         if len(portal_hit_list) != 0 and player.x_speed == 0 and player.y_speed == 0:                  #Remove everything from current level
                 for wall in all_sprites_list:
                     all_sprites_list.remove(wall)
                 for wall in wall_list:
                     wall_list.remove(wall)
                     all_sprites_list.remove(player)
                     player_list.remove(player)
+
+                    for portal in portal_list:      #Remove the portal once the player has collided with it
+                        portal_list.remove(portal)  #So that it can be created in the next levels
 
 
 
@@ -661,7 +670,7 @@ while not done and startscreen == False:
                  # 5 = Player spawnpoint
 
                 
-                randommap = random.randint(1,4)
+                randommap = 1 #random.randint(1,4)
 
 
                 if randommap == 1:
@@ -672,10 +681,10 @@ while not done and startscreen == False:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,5,0,0,0,1,0,0,0,0,2,0,0,2,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,1,0,0,0,0,2,0,0,2,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,2,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,4,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,4,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,2,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
@@ -701,7 +710,7 @@ while not done and startscreen == False:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,5,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,0,0,2,0,1,1,1,1,1],
@@ -731,7 +740,7 @@ while not done and startscreen == False:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,5,0,1,0,0,2,0,1,0,0,0,0,2,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,2,0,1,0,0,0,0,2,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,2,1,0,0,2,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
@@ -758,27 +767,37 @@ while not done and startscreen == False:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,5,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,2,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,2,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,3,3,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,1,1,0,0,0,0,2,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,2,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,2,0,0,0,0,1,1,1,1,0,2,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,2,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,1,2,0,0,1,0,2,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+
+                player = Player()
+                player_list.add(player)
+                all_sprites_list.add(player)
+                player.health = oldhealth
+                player.score = oldscore
+                player.xp = oldxp
+                player.kills = oldkills
+                player.coins = oldcoins
+                player.level = oldlevel + 1
 
                 for y in range(24):
                     for x in range(26):
@@ -811,52 +830,9 @@ while not done and startscreen == False:
                     for portal in all_sprites_list:
                         all_sprites_list.remove(portal)
 
-                player = Player()
-                player_list.add(player)
-                all_sprites_list.add(player)
-                player.health = oldhealth
-                player.score = oldscore
-                player.xp = oldxp
-                player.kills = oldkills
-                player.coins = oldcoins
-                player.level = oldlevel + 1
-
-                if player.move(3,3):
-                    player.move(-3,-3)
-                    
-                elif player.move(-3,3):
-                    player.move(3,-3)
-                    
-                elif player.move(3,-3):
-                    player.move(-3,3)
-
-                elif player.move(0,3):
-                    player.move(0,-3)
-
-                elif player.move(0,-3):
-                    player.move(0,3)
-
-                elif player.move(3,0):
-                    player.move(-3,0)
-
-                elif player.move(-3,0):
-                    player.move(3,0)
-
-
-  
-
-
-
-
-
-
-
-
+                
 
     # -------------------------------------------------------- #
-
-
-
 
     # ----------------- Displaying things on screen --------------- #
 
@@ -896,18 +872,7 @@ while not done and startscreen == False:
 
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
 
-        #Death screen
-
-        if player.health <= 0:
-            screen.fill(BLACK)
-
-            font = pygame.font.SysFont("Arial", 50)
-            
-            death_text = font.render("You died", True, WHITE, BLACK)
-                                 
-            screen.blit(death_text, [400-(death_text.get_width() // 2), 400])
-                    
-        pygame.display.update()
+        
 
 
 

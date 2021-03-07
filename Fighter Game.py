@@ -12,39 +12,7 @@ WIDTH = 800
 HEIGHT = 800
 
 
-# KEY
-# 0 = Nothing
-# 1 = Wall
-# 2 = Enemy
-# 3 = Portal
-# 4 = Coins
 
-maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,4,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,2,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
-        [1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,3,3,1,1,1,1,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,3,3,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 
 #Initialise Pygame
 pygame.init()
@@ -71,11 +39,10 @@ class Wall(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
          def __init__(self):
              super().__init__()
-             self.health = 100
+             self.health = 30
              self.xp = 0
              self.score = 0
              self.kills = 0
-             self.level = 1
              self.coins = 0
              self.damage = 5
              self.x_speed = 0
@@ -259,12 +226,6 @@ class Camera(pygame.sprite.Sprite):
 
 # ---------------------- Functions ---------------------- #
 
-def read_highscore():
-    (hello)
-
-    
-            
-
 
 
 # ------------------------------------------------------ #
@@ -309,55 +270,18 @@ pygame.display.set_caption("Fighter Game")
 startscreen_image = pygame.image.load("background.jpg").convert()
 
 
-
-#Create instance of player and add it to relevant lists
-player = Player()
-player_list.add(player)
-all_sprites_list.add(player)
-
-
-
-# ---------------- Loops to add objects to map ---------------- #
-
-for y in range(24):
-    for x in range(26):
-        if maps[y][x] == 1:
-            wall=Wall(x*100, y*100)
-            all_sprites_list.add(wall)
-            wall_list.add(wall)
-
-for y in range(24):
-    for x in range(26):
-        if maps[y][x] == 2:
-            enemy=Enemy(x*100, y*100)
-            all_sprites_list.add(enemy)
-            enemy_list.add(enemy)
-
-'Portal is created in while loop dependant on specific conditions'
-
-
-#randomcoin = random.randrange(1,4)
-for y in range(24):
-    for x in range(26):
-        if maps[y][x] == 4:
-            coin=Coin(x*100, y*100)
-            all_sprites_list.add(coin)
-            coin_list.add(coin)
-
-
-
-# ------------------------------------------------------------- #
-
-
-
-
 #Variables needed to be set before main loop
 
 enemy_kills = 0
+coins_left = 0
+level = 0
+highscore = 120
+
+
+newlevel = False
+pause = False
 done = False
 startscreen = True
-coins_left = 0
-highscore = 120
 
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
@@ -403,7 +327,7 @@ while not done:
                 player.move(0,-3)
 
     while startscreen == True:
-        
+        pause = True
         screen.fill(RED)
         screen.blit(startscreen_image, [0,0])
         font = pygame.font.SysFont("Arial", 50)
@@ -427,10 +351,86 @@ while not done:
                 pygame.quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
+                    player = Player()
+                    player_list.add(player)
+                    all_sprites_list.add(player)
                     startscreen = False
-                
+                    pause = False
 
-    # --- Game logic should go here
+    # -------- Create level at the start of the game, and also if the player dies -------- #
+    
+                    
+    if level == 0 and pause == False:
+        
+
+        # KEY
+        # 0 = Nothing
+        # 1 = Wall
+        # 2 = Enemy
+        # 3 = Portal
+        # 4 = Coins
+
+        maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,1,0,0,4,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,0,0,0,0,0,0,2,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,4,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,2,0,2,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1],
+                [1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1], 
+                [1,1,1,1,0,2,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
+                [1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,3,3,1,1,1,1,1],
+                [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,3,3,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+
+        
+        for y in range(24):
+            for x in range(26):
+                if maps[y][x] == 1:
+                    wall=Wall(x*100, y*100)
+                    all_sprites_list.add(wall)
+                    wall_list.add(wall)
+        
+        
+        for y in range(24):
+            for x in range(26):
+                if maps[y][x] == 2:
+                    enemy=Enemy(x*100, y*100)
+                    all_sprites_list.add(enemy)
+                    enemy_list.add(enemy)
+
+        'Portal is created in while loop dependant on specific conditions'
+
+
+        #randomcoin = random.randrange(1,4)
+        for y in range(24):
+            for x in range(26):
+                if maps[y][x] == 4:
+                    coin=Coin(x*100, y*100)
+                    all_sprites_list.add(coin)
+                    coin_list.add(coin)
+        level += 1
+
+
+
+    # ------------------------------------------------------------------------------------ #
+                        
+
+
     lastxpos = player.rect.x
     lastypos = player.rect.y
 
@@ -445,15 +445,46 @@ while not done:
 
 
 
-    #Death screen
+    # ------- Player Death ------ #
 
     if player.health <= 0:
-        screen.fill(BLACK)
+        screen.blit(startscreen_image, [0,0])
+        
         font = pygame.font.SysFont("Arial", 50)
         death_text = font.render("You died", True, WHITE, BLACK)
-        screen.blit(death_text, [400-(death_text.get_width() // 2), 400])
+        restart_text = font.render("Press space to go to the main menu", True, WHITE, BLACK)
+        screen.blit(death_text, [400-(death_text.get_width() // 2), 300])
+        screen.blit(restart_text, [400-(restart_text.get_width() // 2), 400])
+
+
+    #Reset all player statistics for restart
+        player_list.remove(player)
+        all_sprites_list.remove(player)
+
+    #Remove all existing sprites
+        for wall in wall_list:
+            wall_list.remove(wall)
+        for wall in all_sprites_list:
+            all_sprites_list.remove(wall)
+        for coin in coin_list:
+            coin_list.remove(wall)
+        for coin in coin_list:
+            all_sprites_list.remove(coin)
+        level = 0 
+            
+        
+        for event in pygame.event.get():        #Exit the startscreen if the user hits space
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    startscreen = True
+    
+        
                     
         pygame.display.update()
+        
+    # --------------------------- #
 
 
                     # --- Collisions --- #
@@ -635,7 +666,7 @@ while not done:
          oldscore = player.score
          oldkills = player.kills
          oldcoins = player.coins
-         oldlevel = player.level
+         oldlevel = level
 
 
          if len(portal_list) == 0:
@@ -648,7 +679,7 @@ while not done:
 
          portal_hit_list = pygame.sprite.spritecollide(player, portal_list, False)
 
-         if len(portal_hit_list) != 0 and player.x_speed == 0 and player.y_speed == 0:                  #Remove everything from current level
+         if len(portal_hit_list) != 0 and player.x_speed == 0 and player.y_speed == 0:  #Remove everything from current level if the player goes into portal
                 for wall in all_sprites_list:
                     all_sprites_list.remove(wall)
                 for wall in wall_list:
@@ -670,7 +701,7 @@ while not done:
                  # 5 = Player spawnpoint
 
                 
-                randommap = 1 #random.randint(1,4)
+                randommap = random.randint(1,4)
 
 
                 if randommap == 1:
@@ -683,13 +714,13 @@ while not done:
                             [1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,1,0,0,0,0,2,0,0,2,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,2,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,4,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,4,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,4,0,0,1,1,1,1,1,0,0,0,0,4,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,2,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,4,0,0,0,1,0,0,2,0,0,2,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,2,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,2,0,0,0,1,0,0,0,0,0,0,4,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,1,1,1,1,1,0,0,2,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
@@ -714,14 +745,14 @@ while not done:
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,0,0,2,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,2,0,0,0,0,1,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,2,0,1,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,0,0,0,1,0,0,2,0,4,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,4,0,0,2,0,1,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,2,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,2,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,4,0,0,0,1,0,0,0,0,0,2,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,4,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,2,0,2,0,2,1,0,0,0,0,2,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -745,14 +776,14 @@ while not done:
                             [1,1,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,4,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,1,1,0,0,4,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,2,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,2,1,1,1,1,1,1,1,1,0,0,0,4,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,2,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,2,0,0,2,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,2,1,0,0,0,1,0,0,0,0,0,3,3,1,1,1,1,1],
-                            [1,1,1,1,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,2,0,4,0,0,0,0,2,0,0,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -768,19 +799,19 @@ while not done:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,2,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,4,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,2,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,1,0,0,1,1,0,0,0,4,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,2,4,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,1,1,0,0,0,0,2,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,2,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,2,0,0,0,0,1,1,1,1,0,2,0,0,1,1,1,1,1],
                             [1,1,1,1,0,2,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,1,2,0,0,1,0,2,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,1,2,0,0,1,0,2,0,4,0,3,3,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -788,7 +819,8 @@ while not done:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
-
+                    
+     
                 player = Player()
                 player_list.add(player)
                 all_sprites_list.add(player)
@@ -797,8 +829,10 @@ while not done:
                 player.xp = oldxp
                 player.kills = oldkills
                 player.coins = oldcoins
-                player.level = oldlevel + 1
+                level = oldlevel + 1
 
+
+                #Adding in features for new levels
                 for y in range(24):
                     for x in range(26):
                         if maps[y][x] == 1:
@@ -817,22 +851,24 @@ while not done:
                                 enemy_list.add(enemy)
 
 
-                for y in range(24):
-                    for x in range(26):
-                        if maps[y][x] == 4:
-                            coin=Coin(x*100, y*100)
-                            all_sprites_list.add(coin)
-                            coin_list.add(coin)
-
-                if len(enemy_list) and len (coin_list) != 0:
-                    for portal in portal_list:
+                if len(enemy_list) != 0 and len (coin_list) != 0:   #If there are enemies and/or coins left, remove the portal
+                    for portal in portal_list:                      #since the player needs both for the level to be completed
                         portal_list.remove(portal)
                     for portal in all_sprites_list:
                         all_sprites_list.remove(portal)
+                newlevel = True
 
                 
 
     # -------------------------------------------------------- #
+    if newlevel == True:
+            for y in range(24):
+                for x in range(26):
+                    if maps[y][x] == 4:
+                        coin=Coin(x*100, y*100)
+                        all_sprites_list.add(coin)
+                        coin_list.add(coin)
+                        newlevel = False
 
     # ----------------- Displaying things on screen --------------- #
 
@@ -841,7 +877,7 @@ while not done:
     if highscore < player.score:
         highscore = player.score
 
-    if startscreen == False and player.health > 0:      #Only display the scoreboard if the player is alive and the game is playing
+    if pause == False and player.health > 0:      #Only display the scoreboard if the player is alive and the game is playing
         screen.fill(BLACK)
         for sprite in all_sprites_list:                         #The same as all_sprites_list.draw, however now,
             screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is rather than the window itself                                                               #rather than the start screen
@@ -864,7 +900,7 @@ while not done:
         coin_remain_text = font.render("Coins Remaining: " + str(len(coin_list)), False, WHITE)
 
         font = pygame.font.SysFont("Aerial", 60, False, False)
-        level_text = font.render("Level: " + str(player.level), False, WHITE)
+        level_text = font.render("Level: " + str(level), False, WHITE)
 
         screen.blit(highscore_text, [0,0])
         screen.blit(enemy_remain_text, [0,30])

@@ -17,7 +17,6 @@ HEIGHT = 800
 #Initialise Pygame
 pygame.init()
 
-HIGHSCORE_FILE = ("highscore.txt")
 
 # --------------------- Classes --------------------- #
 
@@ -39,7 +38,7 @@ class Wall(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
          def __init__(self):
              super().__init__()
-             self.health = 30
+             self.health = 100
              self.xp = 0
              self.score = 0
              self.kills = 0
@@ -275,8 +274,8 @@ startscreen_image = pygame.image.load("background.jpg").convert()
 enemy_kills = 0
 coins_left = 0
 level = 0
-highscore = 120
 
+directory = path.dirname(__file__) #Get the path to the file
 
 newlevel = False
 pause = False
@@ -326,9 +325,29 @@ while not done:
             elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                 player.move(0,-3)
 
+    #Saving highscore to textfile
+    try:
+        HIGHSCORE_FILE = open("highscore.txt", 'r')
+        highscore = int(HIGHSCORE_FILE.read())
+        HIGHSCORE_FILE.close()
+    except:
+        highscore = 0
+    
+
+
     while startscreen == True:
         pause = True
-        screen.fill(RED)
+        for event in pygame.event.get():        #Exit the startscreen if the user hits space
+            if event.type == pygame.QUIT:
+                startscreen = False
+                done = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    player = Player()
+                    player_list.add(player)
+                    all_sprites_list.add(player)
+                    startscreen = False
+                    pause = False
         screen.blit(startscreen_image, [0,0])
         font = pygame.font.SysFont("Arial", 50)
         
@@ -346,21 +365,17 @@ while not done:
         screen.blit(hs_text, [(400-hs_text.get_width() // 2), 700])
         pygame.display.update()
 
-        for event in pygame.event.get():        #Exit the startscreen if the user hits space
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    player = Player()
-                    player_list.add(player)
-                    all_sprites_list.add(player)
-                    startscreen = False
-                    pause = False
+        
+
 
     # -------- Create level at the start of the game, and also if the player dies -------- #
     
                     
     if level == 0 and pause == False:
+        for coin in coin_list:
+            coin_list.remove(coin)
+        for enemy in enemy_list:
+            enm
         
 
         # KEY
@@ -404,19 +419,21 @@ while not done:
                     wall=Wall(x*100, y*100)
                     all_sprites_list.add(wall)
                     wall_list.add(wall)
-        
-        
+    
         for y in range(24):
             for x in range(26):
                 if maps[y][x] == 2:
                     enemy=Enemy(x*100, y*100)
                     all_sprites_list.add(enemy)
                     enemy_list.add(enemy)
+        
+                    
+        
 
         'Portal is created in while loop dependant on specific conditions'
 
 
-        #randomcoin = random.randrange(1,4)
+        randomcoin = random.randrange(1,4)
         for y in range(24):
             for x in range(26):
                 if maps[y][x] == 4:
@@ -448,6 +465,14 @@ while not done:
     # ------- Player Death ------ #
 
     if player.health <= 0:
+
+        for event in pygame.event.get():        #Exit the startscreen if the user hits space
+            if event.type == pygame.QUIT:
+                done = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    startscreen = True
+                    
         screen.blit(startscreen_image, [0,0])
         
         font = pygame.font.SysFont("Arial", 50)
@@ -456,29 +481,32 @@ while not done:
         screen.blit(death_text, [400-(death_text.get_width() // 2), 300])
         screen.blit(restart_text, [400-(restart_text.get_width() // 2), 400])
 
-
-    #Reset all player statistics for restart
-        player_list.remove(player)
-        all_sprites_list.remove(player)
-
     #Remove all existing sprites
         for wall in wall_list:
             wall_list.remove(wall)
         for wall in all_sprites_list:
             all_sprites_list.remove(wall)
+            
         for coin in coin_list:
             coin_list.remove(wall)
         for coin in coin_list:
             all_sprites_list.remove(coin)
+
+        for enemy in enemy_list:
+            enemy_list.remove(enemy)
+        for enemy in all_sprites_list:
+            all_sprites_list.remove(enemy)
+
+        for bullet in bullet_list:
+            bullet_list.remove(bullet)
+        for bullet in all_sprites_list:
+            bullet_list.remove(bullet)
+
+        #Reset all player statistics for restart
+        player_list.remove(player)
+        all_sprites_list.remove(player)
         level = 0 
             
-        
-        for event in pygame.event.get():        #Exit the startscreen if the user hits space
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    startscreen = True
     
         
                     
@@ -874,8 +902,17 @@ while not done:
 
 
     ' -- Highscore + Player Scoreboard + Level information -- '
-    if highscore < player.score:
+    if player.score > highscore:
         highscore = player.score
+        
+        try:
+            HIGHSCORE_FILE = open("highscore.txt", 'w')
+            HIGHSCORE_FILE.write(str(player.score))
+            HIGHSCORE_FILE.close()
+        except:
+            1 + 1
+
+     
 
     if pause == False and player.health > 0:      #Only display the scoreboard if the player is alive and the game is playing
         screen.fill(BLACK)
@@ -909,8 +946,6 @@ while not done:
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
 
         
-
-
 
 
     pygame.display.flip()

@@ -39,7 +39,6 @@ class Player(pygame.sprite.Sprite):
          def __init__(self):
              super().__init__()
              self.health = 100
-             self.xp = 0
              self.score = 0
              self.kills = 0
              self.coins = 0
@@ -277,6 +276,7 @@ level = 0
 
 directory = path.dirname(__file__) #Get the path to the file
 
+pausescreen = False
 newlevel = False
 pause = False
 done = False
@@ -305,6 +305,10 @@ while not done:
                 player.move(0,-3)
             elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                 player.move(0,3)
+            elif event.key == pygame.K_p:
+                pausescreen = True
+                player.x_speed = 0
+                player.y_speed = 0
 
             elif event.key == pygame.K_SPACE:
                 pos = pygame.mouse.get_pos()        #Get mouse position
@@ -332,7 +336,7 @@ while not done:
         HIGHSCORE_FILE.close()
     except:
         highscore = 0
-    
+
 
 
     while startscreen == True:
@@ -350,14 +354,18 @@ while not done:
                     pause = False
         screen.blit(startscreen_image, [0,0])
         font = pygame.font.SysFont("Arial", 50)
-        
+
+
+        #Set the text
         start_text = font.render("Fighter Game", True, WHITE, BLACK)
         instruction_text = font.render("Use your mouse to aim,", True, WHITE, BLACK)
         instruction_text2 = font.render("Press Space to shoot", True, WHITE, BLACK)
         instruction_text3 = font.render("Use arrow keys or WASD to move", True,WHITE,BLACK)
         space_text= font.render("Press Space to Play", True, WHITE, BLACK)
         hs_text = font.render("Highscore: " + str(highscore), True,WHITE,BLACK)
-        screen.blit(start_text, [400-(start_text.get_width() // 2), 200])               #Puts the text in the middle
+
+        #Blit the text to the screen
+        screen.blit(start_text, [400-(start_text.get_width() // 2), 200])
         screen.blit(instruction_text, [400-(instruction_text.get_width() // 2), 300])
         screen.blit(instruction_text2, [400-(instruction_text2.get_width() // 2), 400])
         screen.blit(instruction_text3, [400-(instruction_text3.get_width() // 2), 500])
@@ -365,18 +373,37 @@ while not done:
         screen.blit(hs_text, [(400-hs_text.get_width() // 2), 700])
         pygame.display.update()
 
-        
+
+    while pausescreen == True:
+
+        for event in pygame.event.get():        #Exit the startscreen if the user hits space
+            if event.type == pygame.QUIT:
+                pausescreen = False    #Exit the game if the player presses exit
+                done = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    pausescreen = False
+
+        screen.fill(BLACK)
+        font = pygame.font.SysFont("Arial", 50)
+        pausetext = font.render("Game Paused, Press P to continue", True, WHITE, BLACK)
+        screen.blit(pausetext, [400-(pausetext.get_width() //2), 300])
+        pygame.display.update()
+
+
+
+
 
 
     # -------- Create level at the start of the game, and also if the player dies -------- #
-    
-                    
+
+
     if level == 0 and pause == False:
         for coin in coin_list:
             coin_list.remove(coin)
         for enemy in enemy_list:
-            enm
-        
+            enemy_list.remove(enemy)
+
 
         # KEY
         # 0 = Nothing
@@ -399,7 +426,7 @@ while not done:
                 [1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1],
                 [1,1,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1],
                 [1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1], 
+                [1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
                 [1,1,1,1,0,2,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1],
                 [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
                 [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1],
@@ -412,23 +439,23 @@ while not done:
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 
-        
+
         for y in range(24):
             for x in range(26):
                 if maps[y][x] == 1:
                     wall=Wall(x*100, y*100)
                     all_sprites_list.add(wall)
                     wall_list.add(wall)
-    
+
         for y in range(24):
             for x in range(26):
                 if maps[y][x] == 2:
                     enemy=Enemy(x*100, y*100)
                     all_sprites_list.add(enemy)
                     enemy_list.add(enemy)
-        
-                    
-        
+
+
+
 
         'Portal is created in while loop dependant on specific conditions'
 
@@ -445,15 +472,11 @@ while not done:
 
 
     # ------------------------------------------------------------------------------------ #
-                        
+
 
 
     lastxpos = player.rect.x
     lastypos = player.rect.y
-
-    for enemy in enemy_list:
-        enemy.last_x_pos = enemy.rect.x
-        enemy.last_y_pos = enemy.rect.y
 
     all_sprites_list.update()
 
@@ -472,9 +495,9 @@ while not done:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     startscreen = True
-                    
+
         screen.blit(startscreen_image, [0,0])
-        
+
         font = pygame.font.SysFont("Arial", 50)
         death_text = font.render("You died", True, WHITE, BLACK)
         restart_text = font.render("Press space to go to the main menu", True, WHITE, BLACK)
@@ -486,7 +509,7 @@ while not done:
             wall_list.remove(wall)
         for wall in all_sprites_list:
             all_sprites_list.remove(wall)
-            
+
         for coin in coin_list:
             coin_list.remove(wall)
         for coin in coin_list:
@@ -505,13 +528,13 @@ while not done:
         #Reset all player statistics for restart
         player_list.remove(player)
         all_sprites_list.remove(player)
-        level = 0 
-            
-    
-        
-                    
+        level = 0
+
+
+
+
         pygame.display.update()
-        
+
     # --------------------------- #
 
 
@@ -532,24 +555,7 @@ while not done:
 
 
 
-    # -------- Collision between player, bullets, and enemy ------- #
-
-    #Player collision with enemy
-    enemy_hit_list = pygame.sprite.spritecollide(player, enemy_list, False)
-
-    for enemy in enemy_hit_list:
-
-        enemy.health -= player.damage
-        player.health -= enemy.damage
-        player.score += enemy.score
-
-        if pygame.sprite.spritecollide(player, enemy_list, False):
-           player.rect.x = lastxpos
-           player.rect.y = lastypos
-        if enemy.health <= 0:
-            enemy_hit_list.remove(enemy)
-            enemy_list.remove(enemy)
-            all_sprites_list.remove(enemy)
+    # -------- Collision between player and bullets ------- #
 
 
     #Player bullet collision with enemy
@@ -568,6 +574,7 @@ while not done:
                 enemy_kills += 1
 
 
+
     #Enemy bullet collision with wall
     for enemybullet in enemy_bullet_list:
         if pygame.sprite.spritecollide(enemybullet, wall_list, False):  #If enemy bullet collides with a wall, remove it
@@ -584,7 +591,6 @@ while not done:
         all_sprites_list.remove(enemybullet)
         enemy_bullet_list.remove(enemybullet)
         player_hit_list.remove(enemybullet)
-
 
 
 
@@ -614,7 +620,7 @@ while not done:
         distance = math.sqrt((playerx-enemyx)**2 + (playery-enemyy)**2)  #Calculate distance from player to enemy in pixels using pythagorus
 
         if distance <= 400:                         #If player is within 400 pixels of enemy, enemy will shoot at player
-            randomv = random.randint(1,30)          #Shoot on average twice a second
+            randomv = random.randint(1,20)          #Shoot on average twice a second
             if randomv == 1:
                 enemybullet = EnemyBullet(enemy.rect.x+40, enemy.rect.y+20) #Makes bullet spawn in the middle of enemy
                 enemy_bullet_list.add(enemybullet)
@@ -625,15 +631,13 @@ while not done:
 
 
 
+    # ----------- Enemy movement, wall collision, player collision ---------- #
 
-
-
-
-
-    # ----------- Enemy movement and wall collision ---------- #
+    player_hit_list = pygame.sprite.spritecollide(player, enemy_list, False)
 
     for enemy in enemy_list:
 
+        #Enemy x movement
         enemy.x_speed = player.rect.x-enemy.rect.x  #Calculate horizontal distance from player to enemy
         enemy.y_speed = player.rect.y-enemy.rect.y  #Calculate vertical distance
 
@@ -648,7 +652,7 @@ while not done:
         elif enemy.distance <= 50:
             enemy.x_speed = 0
 
-
+        #Enemy x wall collision
         for wall in wall_list:
             enemy_hit_list = pygame.sprite.spritecollide(wall, enemy_list, False)   #Same as player collision.
 
@@ -658,8 +662,7 @@ while not done:
                 elif enemy.x_speed < 0:
                     enemy.rect.left = wall.rect.right
 
-
-
+        #Enemy y movement
         if enemy.distance <= 600 and enemy.distance >= 400:                 #The X and Y movements must be done seperately to avoid huge glitches
             enemy.rect.y += enemy.y_speed/400                               #Calculating seperately allows for much smoother movement, and for the code to actual work
 
@@ -669,7 +672,7 @@ while not done:
         elif enemy.distance <= 50:
             enemy.y_speed = 0
 
-
+        #Enemy Y wall collision
         for wall in wall_list:
             enemy_hit_list = pygame.sprite.spritecollide(wall, enemy_list, False)
 
@@ -680,7 +683,18 @@ while not done:
                 elif enemy.y_speed < 0:
                     enemy.rect.top = wall.rect.bottom
 
+        for enemy in player_hit_list:
+            enemy.health -= player.damage
+            player.health -= enemy.damage
+            player.score += enemy.score
 
+        if pygame.sprite.spritecollide(player, enemy_list, False):
+           player.rect.x = lastxpos         #Bounce the player back if it collides with an enemy
+           player.rect.y = lastypos
+
+        if enemy.health <= 0:               #Remove the enemy if it's dead
+            enemy_list.remove(enemy)
+            all_sprites_list.remove(enemy)
 
 
     # ------------------------- Next Levels ------------------------- #
@@ -688,15 +702,14 @@ while not done:
 
 
     if len(enemy_list) == 0 and len(coin_list) == 0:  #If there are no enemies, coins (meaning player has beaten level), create new level
-
+        
          oldhealth = player.health #Save old player stats before deleting them and making a new player instance
-         oldxp = player.xp
          oldscore = player.score
          oldkills = player.kills
          oldcoins = player.coins
          oldlevel = level
 
-
+    
          if len(portal_list) == 0:
              for y in range(24):                         #Create portal
                  for x in range(26):
@@ -707,7 +720,7 @@ while not done:
 
          portal_hit_list = pygame.sprite.spritecollide(player, portal_list, False)
 
-         if len(portal_hit_list) != 0 and player.x_speed == 0 and player.y_speed == 0:  #Remove everything from current level if the player goes into portal
+         if len(portal_hit_list) != 0 and player.x_speed == 0 and player.y_speed == 0: #Remove everything from current level if the player goes into portal
                 for wall in all_sprites_list:
                     all_sprites_list.remove(wall)
                 for wall in wall_list:
@@ -715,8 +728,19 @@ while not done:
                     all_sprites_list.remove(player)
                     player_list.remove(player)
 
-                    for portal in portal_list:      #Remove the portal once the player has collided with it
-                        portal_list.remove(portal)  #So that it can be created in the next levels
+                for bullet in bullet_list:
+                    bullet_list.remove(bullet)
+                for bullet in all_sprites_list:
+                    all_sprites_list.remove(bullet)
+
+                for portal in portal_list:      #Remove the portal once the player has collided with it
+                    portal_list.remove(portal)  #So that it can be created in the next levels
+                for portal in all_sprites_list:
+                    all_sprites_list.remove(portal)
+                for portal in portal_hit_list:
+                    portal_list.remove(portal)
+
+
 
 
 
@@ -728,7 +752,7 @@ while not done:
                  # 4 = Coins
                  # 5 = Player spawnpoint
 
-                
+
                 randommap = random.randint(1,4)
 
 
@@ -847,14 +871,13 @@ while not done:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
-                    
-     
+
+
                 player = Player()
                 player_list.add(player)
                 all_sprites_list.add(player)
                 player.health = oldhealth
                 player.score = oldscore
-                player.xp = oldxp
                 player.kills = oldkills
                 player.coins = oldcoins
                 level = oldlevel + 1
@@ -878,25 +901,17 @@ while not done:
                                 all_sprites_list.add(enemy)
                                 enemy_list.add(enemy)
 
-
-                if len(enemy_list) != 0 and len (coin_list) != 0:   #If there are enemies and/or coins left, remove the portal
-                    for portal in portal_list:                      #since the player needs both for the level to be completed
-                        portal_list.remove(portal)
-                    for portal in all_sprites_list:
-                        all_sprites_list.remove(portal)
-                newlevel = True
-
-                
+                for y in range(24):
+                    for x in range(26):
+                        if maps[y][x] == 4:
+                            coin=Coin(x*100, y*100)
+                            all_sprites_list.add(coin)
+                            coin_list.add(coin)
+                            
 
     # -------------------------------------------------------- #
-    if newlevel == True:
-            for y in range(24):
-                for x in range(26):
-                    if maps[y][x] == 4:
-                        coin=Coin(x*100, y*100)
-                        all_sprites_list.add(coin)
-                        coin_list.add(coin)
-                        newlevel = False
+
+
 
     # ----------------- Displaying things on screen --------------- #
 
@@ -904,7 +919,7 @@ while not done:
     ' -- Highscore + Player Scoreboard + Level information -- '
     if player.score > highscore:
         highscore = player.score
-        
+
         try:
             HIGHSCORE_FILE = open("highscore.txt", 'w')
             HIGHSCORE_FILE.write(str(player.score))
@@ -912,7 +927,7 @@ while not done:
         except:
             1 + 1
 
-     
+
 
     if pause == False and player.health > 0:      #Only display the scoreboard if the player is alive and the game is playing
         screen.fill(BLACK)
@@ -945,7 +960,7 @@ while not done:
 
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
 
-        
+
 
 
     pygame.display.flip()

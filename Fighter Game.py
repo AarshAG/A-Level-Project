@@ -123,7 +123,7 @@ class Enemy(pygame.sprite.Sprite):
 
         super().__init__()
 
-        self.health = 30
+        self.health = 20
         self.score = 10
         self.damage = 5
         self.speed = 1
@@ -198,7 +198,9 @@ class Camera(pygame.sprite.Sprite):
 
 
     def __init__(self,w,h):
+        
         super().__init__()
+        
         self.camera = pygame.Rect(0,0,w,h) #Sets a camera rectangle of size 800x800 (size of window)
                                            #Numbers keep track of how far the camera is from the start
         self.width = w
@@ -213,6 +215,32 @@ class Camera(pygame.sprite.Sprite):
 
         self.camera = pygame.Rect(x,y, self.width, self.height)
 
+
+#                     Powerups 
+
+class AddHealth(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.health = 15
+        self.addhealth = 10
+        self.distance = 0
+        self.image=pygame.image.load("heart.png").convert()
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        
+        
+class ExtraDamage(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        
 
 
 
@@ -256,6 +284,11 @@ portal_hit_list = pygame.sprite.Group()
 coin_list = pygame.sprite.Group()
 coin_hit_list = pygame.sprite.Group()
 
+
+            #Powerups
+powerup_list = pygame.sprite.Group()
+addhealth_list = pygame.sprite.Group()
+addhealth_hit_list = pygame.sprite.Group()
 # ---------------------------------------- #
 
 
@@ -273,6 +306,7 @@ startscreen_image = pygame.image.load("background.jpg").convert()
 enemy_kills = 0
 coins_left = 0
 level = 0
+seconds_alive = 0
 
 directory = path.dirname(__file__) #Get the path to the file
 
@@ -281,11 +315,10 @@ newlevel = False
 pause = False
 done = False
 startscreen = True
+powerup = False
 
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
-
-
 
 
 #Top
@@ -567,12 +600,6 @@ while not done:
             player.score += bullet.damage
             all_sprites_list.remove(bullet)     #Remove the bullet after collision
             bullet_list.remove(bullet)
-            if enemy.health <= 0:               #Remove the enemy if it has died
-                all_sprites_list.remove(enemy)
-                enemy_list.remove(enemy)
-                enemy_hit_list.remove(enemy)
-                enemy_kills += 1
-
 
 
     #Enemy bullet collision with wall
@@ -595,6 +622,30 @@ while not done:
 
 
     # -------------------------------------------------------------- #
+    
+
+
+    # ------------------ Powerup Collisions ------------------ #
+
+    if len(powerup_list) > 0:               #Only run the following code if there is a powerup.
+                                            #Saves the computer running unnecessary lines of code, making the gameplay smoother
+        if len(addhealth_list) > 0:
+            addhealth_hit_list = pygame.sprite.spritecollide(player, addhealth_list, False)
+            for addhealth in addhealth_hit_list:
+                player.health += addhealth.addhealth
+                all_sprites_list.remove(addhealth)
+                powerup_list.remove(addhealth)
+                addhealth_list.remove(addhealth)
+        
+    
+
+    
+
+
+
+
+
+    
 
 
     # ------------- Coins and Coin collisions ------------- #
@@ -608,30 +659,9 @@ while not done:
         coins_left -= 1
 
 
-    # ---------- Enemies shooting at player --------- #
 
 
-    for enemy in enemy_list:
-        enemyx = enemy.rect.x
-        enemyy = enemy.rect.y
-        playerx = player.rect.x
-        playery = player.rect.y
-
-        distance = math.sqrt((playerx-enemyx)**2 + (playery-enemyy)**2)  #Calculate distance from player to enemy in pixels using pythagorus
-
-        if distance <= 400:                         #If player is within 400 pixels of enemy, enemy will shoot at player
-            randomv = random.randint(1,20)          #Shoot on average twice a second
-            if randomv == 1:
-                enemybullet = EnemyBullet(enemy.rect.x+40, enemy.rect.y+20) #Makes bullet spawn in the middle of enemy
-                enemy_bullet_list.add(enemybullet)
-                all_sprites_list.add(enemybullet)
-
-    # ------------------------------------------------- #
-
-
-
-
-    # ----------- Enemy movement, wall collision, player collision ---------- #
+    # ----------- Enemy movement, shooting at player wall collision, player collision ---------- #
 
     player_hit_list = pygame.sprite.spritecollide(player, enemy_list, False)
 
@@ -640,9 +670,8 @@ while not done:
         #Enemy x movement
         enemy.x_speed = player.rect.x-enemy.rect.x  #Calculate horizontal distance from player to enemy
         enemy.y_speed = player.rect.y-enemy.rect.y  #Calculate vertical distance
-
         enemy.distance = math.sqrt((enemy.x_speed**2) + (enemy.y_speed**2)) #Calculate actual distance using pythagorus' theorum
-
+            
         if enemy.distance <= 600 and enemy.distance >= 400:         #Depending on distance, change speed
             enemy.rect.x += enemy.x_speed/400
 
@@ -651,6 +680,16 @@ while not done:
 
         elif enemy.distance <= 50:
             enemy.x_speed = 0
+                
+        if enemy.distance <= 600 and enemy.distance >= 400:         #Depending on distance, change speed
+            enemy.rect.x += enemy.x_speed/400
+
+        elif enemy.distance <= 400:
+            enemy.rect.x += enemy.x_speed/200                       #The closer the enemy, the slower it'll go
+
+        elif enemy.distance <= 50:
+            enemy.x_speed = 0
+                        
 
         #Enemy x wall collision
         for wall in wall_list:
@@ -661,6 +700,7 @@ while not done:
                     enemy.rect.right = wall.rect.left
                 elif enemy.x_speed < 0:
                     enemy.rect.left = wall.rect.right
+
 
         #Enemy y movement
         if enemy.distance <= 600 and enemy.distance >= 400:                 #The X and Y movements must be done seperately to avoid huge glitches
@@ -683,6 +723,10 @@ while not done:
                 elif enemy.y_speed < 0:
                     enemy.rect.top = wall.rect.bottom
 
+
+
+        #Take health from both the enemy, and the player if they collide.
+                    
         for enemy in player_hit_list:
             enemy.health -= player.damage
             player.health -= enemy.damage
@@ -692,11 +736,56 @@ while not done:
            player.rect.x = lastxpos         #Bounce the player back if it collides with an enemy
            player.rect.y = lastypos
 
-        if enemy.health <= 0:               #Remove the enemy if it's dead
-            enemy_list.remove(enemy)
+        enemyx = enemy.rect.x
+        enemyy = enemy.rect.y
+        playerx = player.rect.x
+        playery = player.rect.y
+
+        distance = math.sqrt((playerx-enemyx)**2 + (playery-enemyy)**2)  #Calculate distance from player to enemy in pixels using pythagorus
+        
+        if distance <= 600:                         #If player is within 400 pixels of enemy, enemy will shoot at player
+            randomv = random.randint(1,20)          #Shoot on average twice a second
+            if randomv == 1:
+                enemybullet = EnemyBullet(enemy.rect.x+40, enemy.rect.y+20) #Makes bullet spawn in the middle of enemy
+                enemy_bullet_list.add(enemybullet)
+                all_sprites_list.add(enemybullet)
+
+
+
+        #Enemy Death
+                
+        if enemy.health <= 0:       #Remove the enemy if it has died
+            
+            spawnpowerup = 1 #random.randint(1,4)                      #1 in 4 chance of spawning a powerup
+            if spawnpowerup == 1:
+                
+                randompowerup = 1 #random.randint(1,4)                 #Randomly choose which powerup is spawned
+                if randompowerup == 1:                              #This powerup adds health to the enemy
+                
+                    addhealth = AddHealth(enemy.rect.x,enemy.rect.y)
+                    addhealth_list.add(addhealth)
+                    powerup_list.add(addhealth)
+                    all_sprites_list.add(addhealth)
+        
+                    
             all_sprites_list.remove(enemy)
-
-
+            enemy_list.remove(enemy)
+            enemy_kills += 1
+            
+    addhealth_start_ticks = pygame.time.get_ticks()
+    seconds_alive = 0
+    
+    for addhealth in addhealth_list:
+        
+        seconds_alive = (pygame.time.get_ticks() - addhealth_start_ticks)/1000    #Get the time since the sprite has been created
+            
+        if seconds_alive >= 5:                                         #Remove the sprite if it has been left for more than 10 seconds
+            addhealth_list.remove(addhealth)
+            powerup_list.remove(addhealth)
+            all_sprites_list.remove(addhealth)
+            
+    
+                
     # ------------------------- Next Levels ------------------------- #
 
 
@@ -914,8 +1003,7 @@ while not done:
 
 
     # ----------------- Displaying things on screen --------------- #
-
-
+    
     ' -- Highscore + Player Scoreboard + Level information -- '
     if player.score > highscore:
         highscore = player.score
@@ -931,10 +1019,13 @@ while not done:
 
     if pause == False and player.health > 0:      #Only display the scoreboard if the player is alive and the game is playing
         screen.fill(BLACK)
-        for sprite in all_sprites_list:                         #The same as all_sprites_list.draw, however now,
-            screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is rather than the window itself                                                               #rather than the start screen
+        for sprite in all_sprites_list:                           #The same as all_sprites_list.draw, however now,
+            
+            screen.blit(sprite.image, camera.movement(sprite))  #we're drawing it compared to where the camera is rather than the window itself
+            
 
-
+                                                                #rather than the start screen
+    
 
         pygame.draw.line(screen, BLACK, [0,784],[800,784],50)
         #Displaying health, score, etc to user
@@ -959,6 +1050,8 @@ while not done:
         screen.blit(coin_remain_text, [0,60])
 
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
+        
+        
 
 
 

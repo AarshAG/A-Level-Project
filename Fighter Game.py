@@ -52,6 +52,7 @@ class Player(pygame.sprite.Sprite):
              self.rect=self.image.get_rect()
              self.rect.x=500
              self.rect.y=700
+             
 
          def move(self,x,y):
 
@@ -85,6 +86,8 @@ class Player(pygame.sprite.Sprite):
                     player.rect.bottom = wall.rect.top #set bottom of player to top of wall
                 elif player.y_speed < 0: # Same as above but opposite (moving up)
                     player.rect.top = wall.rect.bottom
+
+            
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -249,8 +252,45 @@ class ExtraDamage(pygame.sprite.Sprite):
         self.rect.y = y
 
 
-        
 
+class ShieldPowerup(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.health = 15
+        self.distance = 0
+        self.image=pygame.image.load("shield_powerup.png").convert()
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+class ShieldEffect(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.image=pygame.image.load("shield_effect.png").convert()
+        self.image.set_colorkey(WHITE)
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+class ExtraBullets(pygame.sprite.Sprite):
+
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.image=pygame.image.load("extrabullets.png").convert()
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+    
 
 
 # --------------------------------------------------- #
@@ -262,12 +302,13 @@ class ExtraDamage(pygame.sprite.Sprite):
 # ---------------------- Functions ---------------------- #
 
 
-
 # ------------------------------------------------------ #
 
 
 
 
+
+# ------------- Pygame groups ------------- #
 # ------------- Pygame lists ------------- #
 
 all_sprites_list = pygame.sprite.Group()
@@ -304,8 +345,18 @@ addhealth_hit_list = pygame.sprite.Group()
 extradamage_list = pygame.sprite.Group()
 extradamage_hit_list = pygame.sprite.Group()
 
+shield_powerup_list = pygame.sprite.Group()
+shield_powerup_hit_list = pygame.sprite.Group()
+
+shield_effect_list = pygame.sprite.Group()
+shield_effect_hit_list = pygame.sprite.Group()
+
+extrabullets_list = pygame.sprite.Group()
+extrabullets_hit_list = pygame.sprite.Group()
+
 
 # ---------------------------------------- #
+# ----------------------------------------- #
 
 
 
@@ -327,6 +378,14 @@ seconds_alive = 0
 extradamage_start_time = 0
 extradamage_time_left = 0
 extra_damage = False
+
+shield_powerup_start_time = 0
+shield_powerup_time_left = 0
+shield_powerup_active = False
+
+extrabullets_start_time = 0
+extrabullets_time_left = 0
+extrabullets_active = False
 
 directory = path.dirname(__file__) #Get the path to the file
 
@@ -595,9 +654,11 @@ while not done:
 
     # -------- Collision between bullet and wall -------- #
 
-    while len(bullet_list) > 3:             #Makes it so that only 3 bullets can be on the screen at a time
-            bullet_list.remove(bullet)
-            all_sprites_list.remove(bullet)
+    
+    if extrabullets_active == False:
+        if len(bullet_list) > 3:             #Makes it so that only 3 bullets can be on the screen at a time
+                bullet_list.remove(bullet)
+                all_sprites_list.remove(bullet)
 
     for bullet in bullet_list:              #Remove bullet if it collides with wall
         if pygame.sprite.spritecollide(bullet, wall_list, False):
@@ -634,7 +695,8 @@ while not done:
 
     for enemybullet in player_hit_list:
 
-        player.health -= enemybullet.damage
+        if shield_powerup_active == False:
+            player.health -= enemybullet.damage
         all_sprites_list.remove(enemybullet)
         enemy_bullet_list.remove(enemybullet)
         player_hit_list.remove(enemybullet)
@@ -678,9 +740,9 @@ while not done:
         for extradamage in extradamage_hit_list:
             
             #Remove the collided sprite
-            all_sprites_list.remove(extradamage)                    
+            extradamage_list.remove(extradamage)                    
             powerup_list.remove(extradamage)
-            extradamage_list.remove(extradamage)
+            all_sprites_list.remove(extradamage)
 
             #Set the start timer so that the powerup can remove itself later
             extradamage_start_time = pygame.time.get_ticks()
@@ -708,8 +770,56 @@ while not done:
 
     #-------------------
 
+    if len(shield_powerup_list) > 0:
 
-    
+        shield_powerup_hit_list = pygame.sprite.spritecollide(player, shield_powerup_list, False)
+
+        
+
+        for shield_powerup in shield_powerup_hit_list:
+
+            #Remove the collided sprite
+            shield_powerup_list.remove(shield_powerup)
+            powerup_list.remove(shield_powerup)
+            all_sprites_list.remove(shield_powerup)
+            
+            shield_powerup_start_time = pygame.time.get_ticks()
+
+            shield_powerup_active = True
+
+            #Set the start timer so that the powerup can remove itself later
+            
+
+    shield_powerup_time_left = (pygame.time.get_ticks() - shield_powerup_start_time) / 1000
+    if shield_powerup_time_left > 5:
+        
+        shield_powerup_active = False
+        shield_powerup_time_left = 0
+
+
+
+    if len(extrabullets_list) > 0:
+
+        extrabullets_hit_list = pygame.sprite.spritecollide(player, extrabullets_list, False)
+
+        for extrabullets in extrabullets_hit_list:
+
+            #Removed colllided powerup
+            extrabullets_list.remove(extrabullets)
+            powerup_list.remove(extrabullets)
+            all_sprites_list.remove(extrabullets)
+
+            extrabullets_start_time = pygame.time.get_ticks()
+
+            extrabullets_active = True
+
+    extrabullets_time_left = (pygame.time.get_ticks() - extrabullets_start_time) / 1000
+
+    if extrabullets_time_left > 5:
+        extrabullets_active = False
+        extrabullets_time_left = 0
+
+        
 
     # ------------- Coins and Coin collisions ------------- #
 
@@ -720,7 +830,6 @@ while not done:
         coin_list.remove(coin)
         all_sprites_list.remove(coin)
         coins_left -= 1
-
 
 
 
@@ -792,7 +901,8 @@ while not done:
                     
         for enemy in player_hit_list:
             enemy.health -= player.damage
-            player.health -= enemy.damage
+            if shield_powerup_active == False:
+                player.health -= enemy.damage
             player.score += enemy.score
 
         if pygame.sprite.spritecollide(player, enemy_list, False):
@@ -822,12 +932,14 @@ while not done:
             spawnpowerup = 1 #random.randint(1,4)                      #1 in 4 chance of spawning a powerup
             if spawnpowerup == 1:
 
+
+
                 #Addhealth powerup
-                randompowerup = 2 #random.randint(1,4)                 #Randomly choose which powerup is spawned
+                randompowerup = 4 #random.randint(1,4)                 #Randomly choose which powerup is spawned
                 
                 if randompowerup == 1:                                 #This powerup adds health to the enemy
                 
-                    addhealth = AddHealth(enemy.rect.x,enemy.rect.y)    #
+                    addhealth = AddHealth(enemy.rect.x,enemy.rect.y)    #Create powerup where enemy died
                     
                     addhealth_list.add(addhealth)
                     powerup_list.add(addhealth)
@@ -841,16 +953,43 @@ while not done:
                 #Extra damage powerup
                 elif randompowerup == 2:
 
-                    extradamage = ExtraDamage(enemy.rect.x,enemy.rect.y)    #Create a 
+                    extradamage = ExtraDamage(enemy.rect.x,enemy.rect.y)    #Create powerup where enemy died
 
                     extradamage_list.add(extradamage)
                     powerup_list.add(extradamage)
                     all_sprites_list.add(extradamage)
 
                     extradamage_start_ticks = pygame.time.get_ticks()
+
+                # --------------------
+
+
                 
+                #Shield powerup
+                elif randompowerup == 3:
 
+                    shield_powerup = ShieldPowerup(enemy.rect.x, enemy.rect.y)             #Create powerup where enemy died
 
+                    shield_powerup_list.add(shield_powerup)
+                    powerup_list.add(shield_powerup)
+                    all_sprites_list.add(shield_powerup)
+
+                    shield_powerup_start_ticks = pygame.time.get_ticks()
+
+                # -------------------
+
+                #Infinite bullets powerup
+                elif randompowerup == 4:
+
+                    extrabullets = ExtraBullets(enemy.rect.x, enemy.rect.y)
+
+                    extrabullets_list.add(extrabullets)
+                    powerup_list.add(extrabullets)
+                    all_sprites_list.add(extrabullets)
+
+                    extrabullets_start_ticks = pygame.time.get_ticks()
+                
+                
             
             #Remove the enemy after we get the coordinates                    
             all_sprites_list.remove(enemy)
@@ -860,20 +999,29 @@ while not done:
 
     
             
-    #Remove powerups after they're 10 seconds old
+    # ---------- Remove powerups after they're 10 seconds old ---------- #
     
     seconds_alive_addhealth = 0
     seconds_alive_extradamage = 0
+    seconds_alive_shield_powerup = 0
+    seconds_alive_extrabullets = 0
+
+
+    #Extra health
     
     for addhealth in addhealth_list:
         
         seconds_alive_addhealth = (pygame.time.get_ticks() - addhealth_start_ticks)/1000    #Get the time since the sprite has been created
             
         if seconds_alive_addhealth >= 5:                                         #Remove the health powerup if it has been left for more than the set time
+            
             addhealth_list.remove(addhealth)
             powerup_list.remove(addhealth)
             all_sprites_list.remove(addhealth)
 
+
+    #Extra damage
+            
     for extradamage in extradamage_list:
 
         seconds_alive_extradamage = (pygame.time.get_ticks() - extradamage_start_ticks)/1000
@@ -883,6 +1031,30 @@ while not done:
             powerup_list.remove(extradamage)
             all_sprites_list.remove(extradamage)
 
+
+    #Shield
+
+    for shield_powerup in shield_powerup_list:
+
+        seconds_alive_shield = (pygame.time.get_ticks() - shield_powerup_start_ticks)/1000
+
+        if seconds_alive_shield >= 5:
+            
+            shield_powerup_list.remove(shield_powerup)
+            powerup_list.remove(shield_powerup)
+            all_sprites_list.remove(shield_powerup)
+
+
+    #Extra bullets
+            
+    for extrabullets in extrabullets_list:
+
+        seconds_alive_extrabullets = (pygame.time.get_ticks() - extrabullets_start_ticks)/1000
+
+        if seconds_alive_extrabullets >= 5:
+            extrabullets_list.remove(extrabullets)
+            powerup_list.remove(extrabullets)
+            all_sprites_list.remove(extrabullets)
             
             
 

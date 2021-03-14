@@ -367,6 +367,16 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Fighter Game")
 startscreen_image = pygame.image.load("background.jpg").convert()
 
+extradamage_icon = pygame.image.load("extradamage.png").convert()
+extradamage_icon.set_colorkey(BLACK)
+
+extrabullets_icon = pygame.image.load("extrabullets.png").convert()
+extrabullets_icon.set_colorkey(BLACK)
+
+shield_icon = pygame.image.load("shield_powerup.png").convert()
+shield_icon.set_colorkey(BLACK)
+
+
 
 #Variables needed to be set before main loop
 
@@ -386,6 +396,8 @@ shield_powerup_active = False
 extrabullets_start_time = 0
 extrabullets_time_left = 0
 extrabullets_active = False
+
+
 
 directory = path.dirname(__file__) #Get the path to the file
 
@@ -616,6 +628,13 @@ while not done:
         screen.blit(death_text, [400-(death_text.get_width() // 2), 300])
         screen.blit(restart_text, [400-(restart_text.get_width() // 2), 400])
 
+        #Remove powerups
+        shield_powerup_active = False
+        extra_damage = False
+        extrabullets_active = False
+
+
+
     #Remove all existing sprites
         for wall in wall_list:
             wall_list.remove(wall)
@@ -727,6 +746,10 @@ while not done:
     #-----------------
 
 
+
+
+
+
     #Extra damage powerup
             
     if len(extradamage_list) > 0:
@@ -768,6 +791,11 @@ while not done:
         player.damage = 5
 
 
+
+
+
+
+
     #-------------------
 
     if len(shield_powerup_list) > 0:
@@ -791,10 +819,15 @@ while not done:
             
 
     shield_powerup_time_left = (pygame.time.get_ticks() - shield_powerup_start_time) / 1000
-    if shield_powerup_time_left > 5:
+    if shield_powerup_time_left > 20:
         
         shield_powerup_active = False
         shield_powerup_time_left = 0
+
+
+
+
+
 
 
 
@@ -815,7 +848,7 @@ while not done:
 
     extrabullets_time_left = (pygame.time.get_ticks() - extrabullets_start_time) / 1000
 
-    if extrabullets_time_left > 5:
+    if extrabullets_time_left > 20:
         extrabullets_active = False
         extrabullets_time_left = 0
 
@@ -935,7 +968,7 @@ while not done:
 
 
                 #Addhealth powerup
-                randompowerup = 4 #random.randint(1,4)                 #Randomly choose which powerup is spawned
+                randompowerup = random.randint(1,4)                 #Randomly choose which powerup is spawned
                 
                 if randompowerup == 1:                                 #This powerup adds health to the enemy
                 
@@ -1013,7 +1046,7 @@ while not done:
         
         seconds_alive_addhealth = (pygame.time.get_ticks() - addhealth_start_ticks)/1000    #Get the time since the sprite has been created
             
-        if seconds_alive_addhealth >= 5:                                         #Remove the health powerup if it has been left for more than the set time
+        if seconds_alive_addhealth >= 10:                                         #Remove the health powerup if it has been left for more than the set time
             
             addhealth_list.remove(addhealth)
             powerup_list.remove(addhealth)
@@ -1026,7 +1059,7 @@ while not done:
 
         seconds_alive_extradamage = (pygame.time.get_ticks() - extradamage_start_ticks)/1000
 
-        if seconds_alive_extradamage >= 5:
+        if seconds_alive_extradamage >= 10:
             extradamage_list.remove(extradamage)
             powerup_list.remove(extradamage)
             all_sprites_list.remove(extradamage)
@@ -1038,7 +1071,7 @@ while not done:
 
         seconds_alive_shield = (pygame.time.get_ticks() - shield_powerup_start_ticks)/1000
 
-        if seconds_alive_shield >= 5:
+        if seconds_alive_shield >= 10:
             
             shield_powerup_list.remove(shield_powerup)
             powerup_list.remove(shield_powerup)
@@ -1051,7 +1084,7 @@ while not done:
 
         seconds_alive_extrabullets = (pygame.time.get_ticks() - extrabullets_start_ticks)/1000
 
-        if seconds_alive_extrabullets >= 5:
+        if seconds_alive_extrabullets >= 10:
             extrabullets_list.remove(extrabullets)
             powerup_list.remove(extrabullets)
             all_sprites_list.remove(extrabullets)
@@ -1327,6 +1360,16 @@ while not done:
         screen.blit(coin_remain_text, [0,60])
 
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
+
+        if extra_damage == True:
+            screen.blit(extradamage_icon, [750, 0])
+
+        if shield_powerup_active == True:
+            screen.blit(shield_icon, [680, 0])
+
+        if extrabullets_active == True:
+            screen.blit(extrabullets_icon, [610, 0])
+            
         
         
 

@@ -227,7 +227,7 @@ class AddHealth(pygame.sprite.Sprite):
         self.health = 15
         self.addhealth = 10
         self.distance = 0
-        self.image=pygame.image.load("heart.png").convert()
+        self.image=pygame.image.load("addhealth.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect=self.image.get_rect()
         self.rect.x = x
@@ -239,6 +239,15 @@ class ExtraDamage(pygame.sprite.Sprite):
     def __init__(self,x,y):
 
         super().__init__()
+
+        self.health = 15
+        self.distance = 0
+        self.image=pygame.image.load("extradamage.png").convert()
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
 
         
 
@@ -286,9 +295,16 @@ coin_hit_list = pygame.sprite.Group()
 
 
             #Powerups
+
 powerup_list = pygame.sprite.Group()
+
 addhealth_list = pygame.sprite.Group()
 addhealth_hit_list = pygame.sprite.Group()
+
+extradamage_list = pygame.sprite.Group()
+extradamage_hit_list = pygame.sprite.Group()
+
+
 # ---------------------------------------- #
 
 
@@ -307,6 +323,10 @@ enemy_kills = 0
 coins_left = 0
 level = 0
 seconds_alive = 0
+
+extradamage_start_time = 0
+extradamage_time_left = 0
+extra_damage = False
 
 directory = path.dirname(__file__) #Get the path to the file
 
@@ -627,26 +647,69 @@ while not done:
 
     # ------------------ Powerup Collisions ------------------ #
 
-    if len(powerup_list) > 0:               #Only run the following code if there is a powerup.
-                                            #Saves the computer running unnecessary lines of code, making the gameplay smoother
-        if len(addhealth_list) > 0:
-            addhealth_hit_list = pygame.sprite.spritecollide(player, addhealth_list, False)
-            for addhealth in addhealth_hit_list:
-                player.health += addhealth.addhealth
-                all_sprites_list.remove(addhealth)
-                powerup_list.remove(addhealth)
-                addhealth_list.remove(addhealth)
+    
+    #Addhealth powerup
         
-    
+    if len(addhealth_list) > 0:
+
+        addhealth_hit_list = pygame.sprite.spritecollide(player, addhealth_list, False)
+            
+        for addhealth in addhealth_hit_list:
+            
+            player.health += addhealth.addhealth
+            all_sprites_list.remove(addhealth)
+            powerup_list.remove(addhealth)
+            addhealth_list.remove(addhealth)
+
+
+    #-----------------
+
+
+    #Extra damage powerup
+            
+    if len(extradamage_list) > 0:
+        
+        extradamage_hit_list = pygame.sprite.spritecollide(player, extradamage_list, False)
+
+        #Set this variable to true, used for blitting the powerups on the screen so player can see which powerups are active
+        extra_damage = True                                         
+         
+
+        for extradamage in extradamage_hit_list:
+            
+            #Remove the collided sprite
+            all_sprites_list.remove(extradamage)                    
+            powerup_list.remove(extradamage)
+            extradamage_list.remove(extradamage)
+
+            #Set the start timer so that the powerup can remove itself later
+            extradamage_start_time = pygame.time.get_ticks()
+
+                
+    #If the powerup is active,
+    if extra_damage == True: 
+
+        #Start the timer for how long it has left
+        extradamage_time_left = (pygame.time.get_ticks() - extradamage_start_time)/1000 
+
+        #Increase the bullet damage
+        for bullet in bullet_list:
+            bullet.damage = 20
+
+        player.damage = 20
+
+
+    #Once the powerup has reached the set time, reverse the extra damage
+    if extradamage_time_left > 20:
+        extra_damage = False
+        bullet.damage = 10
+        player.damage = 5
+
+
+    #-------------------
+
 
     
-
-
-
-
-
-    
-
 
     # ------------- Coins and Coin collisions ------------- #
 
@@ -758,32 +821,74 @@ while not done:
             
             spawnpowerup = 1 #random.randint(1,4)                      #1 in 4 chance of spawning a powerup
             if spawnpowerup == 1:
+
+                #Addhealth powerup
+                randompowerup = 2 #random.randint(1,4)                 #Randomly choose which powerup is spawned
                 
-                randompowerup = 1 #random.randint(1,4)                 #Randomly choose which powerup is spawned
-                if randompowerup == 1:                              #This powerup adds health to the enemy
+                if randompowerup == 1:                                 #This powerup adds health to the enemy
                 
-                    addhealth = AddHealth(enemy.rect.x,enemy.rect.y)
+                    addhealth = AddHealth(enemy.rect.x,enemy.rect.y)    #
+                    
                     addhealth_list.add(addhealth)
                     powerup_list.add(addhealth)
                     all_sprites_list.add(addhealth)
-        
                     
+                    addhealth_start_ticks = pygame.time.get_ticks() #Update the start of the timer
+        
+                #-----------------
+
+
+                #Extra damage powerup
+                elif randompowerup == 2:
+
+                    extradamage = ExtraDamage(enemy.rect.x,enemy.rect.y)    #Create a 
+
+                    extradamage_list.add(extradamage)
+                    powerup_list.add(extradamage)
+                    all_sprites_list.add(extradamage)
+
+                    extradamage_start_ticks = pygame.time.get_ticks()
+                
+
+
+            
+            #Remove the enemy after we get the coordinates                    
             all_sprites_list.remove(enemy)
             enemy_list.remove(enemy)
             enemy_kills += 1
+
+
+    
             
-    addhealth_start_ticks = pygame.time.get_ticks()
-    seconds_alive = 0
+    #Remove powerups after they're 10 seconds old
+    
+    seconds_alive_addhealth = 0
+    seconds_alive_extradamage = 0
     
     for addhealth in addhealth_list:
         
-        seconds_alive = (pygame.time.get_ticks() - addhealth_start_ticks)/1000    #Get the time since the sprite has been created
+        seconds_alive_addhealth = (pygame.time.get_ticks() - addhealth_start_ticks)/1000    #Get the time since the sprite has been created
             
-        if seconds_alive >= 5:                                         #Remove the sprite if it has been left for more than 10 seconds
+        if seconds_alive_addhealth >= 5:                                         #Remove the health powerup if it has been left for more than the set time
             addhealth_list.remove(addhealth)
             powerup_list.remove(addhealth)
             all_sprites_list.remove(addhealth)
+
+    for extradamage in extradamage_list:
+
+        seconds_alive_extradamage = (pygame.time.get_ticks() - extradamage_start_ticks)/1000
+
+        if seconds_alive_extradamage >= 5:
+            extradamage_list.remove(extradamage)
+            powerup_list.remove(extradamage)
+            all_sprites_list.remove(extradamage)
+
             
+            
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+
+    
     
                 
     # ------------------------- Next Levels ------------------------- #

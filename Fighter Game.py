@@ -60,6 +60,22 @@ class Player(pygame.sprite.Sprite):
              self.x_speed += x
              self.y_speed += y
 
+         def shoot(self):
+            
+            pos = pygame.mouse.get_pos()        #Get mouse position
+            mouse_x = pos[0]                    #Get x coordinate of mouse position
+            mouse_y = pos[1]                    #Get y coordinate of mouse position
+
+            bullet = Bullet(mouse_x, mouse_y)
+            bullet_list.add(bullet)
+            all_sprites_list.add(bullet)
+            
+            if extrabullets_active == False:
+                if len(bullet_list) > 3:             #Makes it so that only 3 bullets can be on the screen at a time
+                        bullet_list.remove(bullet)
+                        all_sprites_list.remove(bullet)
+
+
          def update(self):
 
             #Moves the player on x-axis
@@ -86,7 +102,10 @@ class Player(pygame.sprite.Sprite):
                     player.rect.bottom = wall.rect.top #set bottom of player to top of wall
                 elif player.y_speed < 0: # Same as above but opposite (moving up)
                     player.rect.top = wall.rect.bottom
+        
 
+        
+        
             
 
 
@@ -108,7 +127,7 @@ class Bullet(pygame.sprite.Sprite):
         y_difference = mouse_y - HEIGHT/2          #for angle calculations below
 
         angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
-        self.x_change = math.cos(angle) * speed         #Multiply the angle with
+        self.x_change = math.cos(angle) * speed         #Multiply the angle with the speed the bullets travel at
         self.y_change = math.sin(angle) * speed
         self.x = self.rect.x                            #self.rect.x and self.rect.y are integers
         self.y = self.rect.y                            #this results in highly inaccurate aiming,
@@ -138,6 +157,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = y
         self.x_speed = 0
         self.y_speed = 0
+
 
 
 class Portal(pygame.sprite.Sprite):
@@ -200,23 +220,23 @@ class EnemyBullet(pygame.sprite.Sprite):
 class Camera(pygame.sprite.Sprite):
 
 
-    def __init__(self,w,h):
+    def __init__(self):
         
         super().__init__()
         
-        self.camera = pygame.Rect(0,0,w,h) #Sets a camera rectangle of size 800x800 (size of window)
+        self.camera = pygame.Rect(0,0,800,800)     #Sets a camera rectangle of size 800x800 (size of window)
                                            #Numbers keep track of how far the camera is from the start
-        self.width = w
-        self.height = h
+        self.width = 800
+        self.height = 800
 
-    def movement(self, hello):
-         return hello.rect.move(self.camera.topleft) #Moves the sprites around the same as the camera movement
-
+    def movement(self, sprite):
+         return sprite.rect.move(self.camera.topleft) #Moves the sprites around the same as the camera movement
+                                                      #Starting point of camera is the top left corner
     def update(self, player):
         x = (player.rect.x*-1) + 400  #Keeps the player centered. Multiply by -1 because camera needs
         y = (player.rect.y*-1) + 400  #to move in oppposite direction to make it look like it's moving.
 
-        self.camera = pygame.Rect(x,y, self.width, self.height)
+        self.camera = pygame.Rect(x,y, 800, 800)    
 
 
 #                     Powerups 
@@ -294,7 +314,6 @@ class ExtraBullets(pygame.sprite.Sprite):
 
 
 # --------------------------------------------------- #
-
 
 
 
@@ -435,13 +454,7 @@ while not done:
                 player.y_speed = 0
 
             elif event.key == pygame.K_SPACE:
-                pos = pygame.mouse.get_pos()        #Get mouse position
-                mouse_x = pos[0]                    #Get x coordinate of mouse position
-                mouse_y = pos[1]                    #Get y coordinate of mouse position
-
-                bullet = Bullet(mouse_x, mouse_y)
-                bullet_list.add(bullet)
-                all_sprites_list.add(bullet)
+                player.shoot()
 
         elif event.type == pygame.KEYUP:      #Making the player stop
             if event.key == pygame.K_LEFT or event.key == pygame.K_a:    #Since you want the player to stop, you have to do the opposite
@@ -454,12 +467,12 @@ while not done:
                 player.move(0,-3)
 
     #Saving highscore to textfile
-    try:
-        HIGHSCORE_FILE = open("highscore.txt", 'r')
-        highscore = int(HIGHSCORE_FILE.read())
-        HIGHSCORE_FILE.close()
+    try:                                                #Try the following 3 lines of code:
+        HIGHSCORE_FILE = open("highscore.txt", 'r')     #Open the file in read mode
+        highscore = int(HIGHSCORE_FILE.read())          #Read the file and set whatever is inside equal to highscore
+        HIGHSCORE_FILE.close()                          #Close the file
     except:
-        highscore = 0
+        highscore = 0                                   #If the code above doesn't work for some reason, set highscore to 0
 
 
 
@@ -604,7 +617,7 @@ while not done:
 
     all_sprites_list.update()
 
-    camera = Camera(WIDTH,HEIGHT) #Create an instantiation of camera class
+    camera = Camera()        #Create an instantiation of camera class
     camera.update(player)    #Update the camera so that the player moves around.
 
 
@@ -673,11 +686,7 @@ while not done:
 
     # -------- Collision between bullet and wall -------- #
 
-    
-    if extrabullets_active == False:
-        if len(bullet_list) > 3:             #Makes it so that only 3 bullets can be on the screen at a time
-                bullet_list.remove(bullet)
-                all_sprites_list.remove(bullet)
+
 
     for bullet in bullet_list:              #Remove bullet if it collides with wall
         if pygame.sprite.spritecollide(bullet, wall_list, False):
@@ -885,16 +894,7 @@ while not done:
 
         elif enemy.distance <= 50:
             enemy.x_speed = 0
-                
-        if enemy.distance <= 600 and enemy.distance >= 400:         #Depending on distance, change speed
-            enemy.rect.x += enemy.x_speed/400
-
-        elif enemy.distance <= 400:
-            enemy.rect.x += enemy.x_speed/200                       #The closer the enemy, the slower it'll go
-
-        elif enemy.distance <= 50:
-            enemy.x_speed = 0
-                        
+                     
 
         #Enemy x wall collision
         for wall in wall_list:
@@ -1318,16 +1318,15 @@ while not done:
     if player.score > highscore:
         highscore = player.score
 
-        try:
-            HIGHSCORE_FILE = open("highscore.txt", 'w')
-            HIGHSCORE_FILE.write(str(player.score))
-            HIGHSCORE_FILE.close()
-        except:
-            1 + 1
+        try:                                                #Try to run the following 3 lines of code
+            HIGHSCORE_FILE = open("highscore.txt", 'w')     #Open the highscore file in write mode
+            HIGHSCORE_FILE.write(str(player.score))         #Write the highscore 
+            HIGHSCORE_FILE.close()                          #Close the file
+        except: 
+            1 + 1                                           #If the code above doesn't work for some reason, just run this line instead
 
 
-
-    if pause == False and player.health > 0:      #Only display the scoreboard if the player is alive and the game is playing
+    if pause == False and player.health > 0:      #Only display if the player is alive and the game is playing
         screen.fill(BLACK)
         for sprite in all_sprites_list:                           #The same as all_sprites_list.draw, however now,
             
@@ -1362,13 +1361,13 @@ while not done:
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
 
         if extra_damage == True:
-            screen.blit(extradamage_icon, [750, 0])
+            screen.blit(extradamage_icon, [740, 0])
 
         if shield_powerup_active == True:
-            screen.blit(shield_icon, [680, 0])
+            screen.blit(shield_icon, [670, 0])
 
         if extrabullets_active == True:
-            screen.blit(extrabullets_icon, [610, 0])
+            screen.blit(extrabullets_icon, [600, 0])
             
         
         

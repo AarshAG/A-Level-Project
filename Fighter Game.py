@@ -249,7 +249,6 @@ class AddHealth(pygame.sprite.Sprite):
 
         self.health = 15
         self.addhealth = 10
-        self.distance = 0
         self.image=pygame.image.load("addhealth.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect=self.image.get_rect()
@@ -264,7 +263,6 @@ class ExtraDamage(pygame.sprite.Sprite):
         super().__init__()
 
         self.health = 15
-        self.distance = 0
         self.image=pygame.image.load("extradamage.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect=self.image.get_rect()
@@ -280,7 +278,6 @@ class ShieldPowerup(pygame.sprite.Sprite):
         super().__init__()
 
         self.health = 15
-        self.distance = 0
         self.image=pygame.image.load("shield_powerup.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect=self.image.get_rect()
@@ -669,6 +666,48 @@ while not done:
         for bullet in all_sprites_list:
             bullet_list.remove(bullet)
 
+        #Removing powerups in the rare occasion they spawn as the player dies
+            
+        for addhealth in addhealth_list:
+            addhealth_list.remove(addhealth)
+        for addhealth in all_sprites_list:
+            all_sprites_list.remove(addhealth)
+        for addhealth in powerup_list:
+            powerup_list.remove(addhealth)
+
+
+        for extradamage in extradamage_list:
+            extradamage_list.remove(extradamage)
+        for extradamage in all_sprites_list:
+            all_sprites_list.remove(extradamage)
+        for extradamage in powerup_list:
+            powerup_list.remove(extradamage)
+            
+
+        for shield_effect in shield_effect_list:
+            shield_effect_list.remove(shield)
+        for shield_effect in all_sprites_list:
+            all_sprites_list.remove(shield_effect)
+        for shield_effect in powerup_list:
+            powerup_list.remove(shield_effect)
+            
+
+        for shield_powerup in shield_powerup_list:
+            shield_powerup_list.remove(shield_powerup)
+        for shield_powerup in all_sprites_list:
+            all_sprites_list.remove(shield_powerup)
+        for shield_powerup in powerup_list:
+            powerup_list.remove(shield_powerup)
+            
+
+        for extrabullets in extrabullets_list:
+            extrabullets_list.remove(extrabullets)
+        for extrabullets in all_sprites_list:
+            all_sprites_list.remove(extrabullets)
+        for extrabullets in powerup_list:
+            powerup_list.remove(extrabullets)
+            
+        
         #Reset all player statistics for restart
         player_list.remove(player)
         all_sprites_list.remove(player)
@@ -962,7 +1001,7 @@ while not done:
                 
         if enemy.health <= 0:       #Remove the enemy if it has died
             
-            spawnpowerup = 1 #random.randint(1,4)                      #1 in 4 chance of spawning a powerup
+            spawnpowerup = random.randint(1,5)                      #1 in 5 chance of spawning a powerup
             if spawnpowerup == 1:
 
 

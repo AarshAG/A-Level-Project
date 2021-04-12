@@ -4,10 +4,13 @@ import math
 from os import path
 # Define some colors
 BLACK = (0, 0, 0)
+GRAY = (105, 105, 105)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0,0,255)
+ORANGE = (255,140,0)
+LIGHTORANGE = (252, 160, 65)
 WIDTH = 800
 HEIGHT = 800
 
@@ -409,7 +412,9 @@ class Camera(pygame.sprite.Sprite):
         x = (player.rect.x*-1) + 400  #Keeps the player centered. Multiply by -1 because camera needs
         y = (player.rect.y*-1) + 400  #to move in oppposite direction to make it look like it's moving.
 
-        self.camera = pygame.Rect(x,y, 800, 800)    
+        self.camera = pygame.Rect(x,y, 800, 800)
+
+
 
 
 #                     Powerups 
@@ -480,6 +485,7 @@ class ExtraBullets(pygame.sprite.Sprite):
         self.rect=self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
     
 
 
@@ -574,6 +580,7 @@ coins_left = 0
 level = 0
 seconds_alive = 0
 
+
 extradamage_start_time = 0
 extradamage_time_left = 0
 extra_damage = False
@@ -596,6 +603,16 @@ pause = False
 done = False
 startscreen = True
 powerup = False
+
+howtoplay_screen = False
+controls_screen = False
+selectdifficulty_screen = False
+
+
+easy = 1
+medium = 2
+hard = 3
+difficulty = easy
 
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
@@ -646,47 +663,353 @@ while not done:
 
 
 
+    #---------------- Splash screen ---------------- #
+
     while startscreen == True:
         pause = True
         for event in pygame.event.get():        #Exit the startscreen if the user hits space
             if event.type == pygame.QUIT:
                 startscreen = False
                 done = True
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+
+        screen.fill(BLUE)
+
+
+        play_button = pygame.Rect(200,200,400,400)                   #Create buttons. Rect(X,Y, Width, Height)            
+        
+        howtoplay_button = pygame.Rect(100,50,200,100)
+        controls_button = pygame.Rect(500,50,200,100)
+        selectdifficulty_button = pygame.Rect(250,650,300,100)
+
+
+        pygame.draw.rect(screen, BLACK, play_button)                #Draw buttons on screen
+        pygame.draw.rect(screen, ORANGE, howtoplay_button)
+        pygame.draw.rect(screen, ORANGE, controls_button)
+        pygame.draw.rect(screen, ORANGE, selectdifficulty_button)
+
+
+
+        font = pygame.font.SysFont("Arial", 50)
+        
+        #Set the text
+        start_text = font.render("Slime Fighters", True, WHITE)
+        click_text= font.render("Click to Play", True, WHITE)
+        hs_text = font.render("Highscore: " + str(highscore), True,WHITE)
+
+
+        font = pygame.font.SysFont("Arial", 30)
+
+        #Different font size for the smaller buttons
+        howtoplay_text = font.render("How To Play", True, BLACK)
+        controls_text = font.render("Controls", True, BLACK)
+        selectdifficulty_text = font.render("Select Difficulty", True, BLACK)
+
+    
+        #Blit the text to the screen
+
+        #Play button
+        screen.blit(start_text, [400-(start_text.get_width() // 2), 250])
+        screen.blit(click_text, [400-(click_text.get_width() // 2), 350])
+        screen.blit(hs_text, [(400-hs_text.get_width() // 2), 450])
+
+        #How to play, controls, select difficulty buttons
+        screen.blit(howtoplay_text, [115, 80])
+        screen.blit(controls_text, [543,80])
+        screen.blit(selectdifficulty_text, [298, 680])
+
+
+
+        #Collision with play button
+        pos = pygame.mouse.get_pos()
+
+        if play_button.collidepoint(pos):               #If mouse is hovering over the button,
+            
+            pygame.draw.rect(screen, GRAY, play_button)
+            screen.blit(start_text, [400-(start_text.get_width() // 2), 250])
+            screen.blit(click_text, [400-(click_text.get_width() // 2), 350])
+            screen.blit(hs_text, [(400-hs_text.get_width() // 2), 450])
+            
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN: #And is pressed, start the game
                     player = Player()
                     player_list.add(player)
                     all_sprites_list.add(player)
                     startscreen = False
                     pause = False
-        screen.blit(startscreen_image, [0,0])
-        font = pygame.font.SysFont("Arial", 50)
+
+        #---------
+
+                    
+        #Collision with How To Play button
+        if howtoplay_button.collidepoint(pos):
+            pygame.draw.rect(screen, LIGHTORANGE, howtoplay_button) #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
+            screen.blit(howtoplay_text, [115, 80])
+            
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    howtoplay_screen = True
+                    
+        #---------
 
 
-        #Set the text
-        start_text = font.render("Fighter Game", True, WHITE, BLACK)
-        instruction_text = font.render("Use your mouse to aim,", True, WHITE, BLACK)
-        instruction_text2 = font.render("Press Space to shoot", True, WHITE, BLACK)
-        instruction_text3 = font.render("Use arrow keys or WASD to move", True,WHITE,BLACK)
-        space_text= font.render("Press Space to Play", True, WHITE, BLACK)
-        hs_text = font.render("Highscore: " + str(highscore), True,WHITE,BLACK)
 
-        #Blit the text to the screen
-        screen.blit(start_text, [400-(start_text.get_width() // 2), 200])
-        screen.blit(instruction_text, [400-(instruction_text.get_width() // 2), 300])
-        screen.blit(instruction_text2, [400-(instruction_text2.get_width() // 2), 400])
-        screen.blit(instruction_text3, [400-(instruction_text3.get_width() // 2), 500])
-        screen.blit(space_text, [400-(space_text.get_width() // 2), 600])
-        screen.blit(hs_text, [(400-hs_text.get_width() // 2), 700])
+
+        #Collision with Controls Button
+        if controls_button.collidepoint(pos):
+
+            pygame.draw.rect(screen, LIGHTORANGE, controls_button)  #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
+            screen.blit(controls_text, [543,80])
+            
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    controls_screen = True
+
+        #---------
+
+
+
+        
+        #Collision with Select Difficulty button
+        if selectdifficulty_button.collidepoint(pos):
+
+            pygame.draw.rect(screen, LIGHTORANGE, selectdifficulty_button)  #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
+            screen.blit(selectdifficulty_text, [298, 680])
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    selectdifficulty_screen = True
+        
+
         pygame.display.update()
 
+        #---------
+
+
+
+
+        #-------------- Select Difficulty Screen ------------ #
+        
+        
+        while selectdifficulty_screen == True:      #Only display the following when the select difficulty screen is enabled
+
+            
+            screen.fill(BLUE)                       #Set blue background
+
+            #------
+            
+            back_button = pygame.Rect(500,650, 200, 100)    #Create buttons
+            pygame.draw.rect(screen, ORANGE, back_button)   #Draw on screens
+
+
+            easy_button = pygame.Rect(275,220,250,120)      
+            pygame.draw.rect(screen, ORANGE, easy_button)
+
+            medium_button = pygame.Rect(275,370,250,120)
+            pygame.draw.rect(screen, ORANGE, medium_button)
+
+            hard_button = pygame.Rect(275,520,250,120)
+            pygame.draw.rect(screen, ORANGE, hard_button)
+
+            
+            #-------
+
+            
+
+            #-------
+            
+            font = pygame.font.SysFont("Arial", 50)         #Declare font
+            
+            if difficulty == 1:
+                instruction_text = font.render("Select a difficulty. Current: Easy", True, WHITE)
+            elif difficulty == 2:
+                instruction_text = font.render("Select a difficulty. Current: Medium", True, WHITE)
+            elif difficulty == 3:
+                instruction_text = font.render("Select a difficulty. Current: Hard", True, WHITE)
+            
+            
+            easy_text = font.render("Easy", True, WHITE)       #Set texts to be displayed on screen
+            medium_text = font.render("Medium", True, WHITE)
+            hard_text = font.render("Hard", True, WHITE)
+            back_text = font.render("Back", True, BLACK)
+
+            screen.blit(instruction_text, [400 - (instruction_text.get_width() // 2), 80])  #Display texts to screen
+            screen.blit(easy_text, [400 - (easy_text.get_width() // 2), 250])
+            screen.blit(medium_text, [400 - (medium_text.get_width() // 2), 400])
+            screen.blit(hard_text, [400 - (hard_text.get_width() // 2), 550])
+            screen.blit(back_text, [543, 670])
+            
+            
+            #-------
+
+
+            #-------
+            
+            pos = pygame.mouse.get_pos()                    #Get mouse position
+            
+            if back_button.collidepoint(pos):
+                pygame.draw.rect(screen, LIGHTORANGE, back_button)  #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
+                screen.blit(back_text, [543, 670])
+                
+            elif easy_button.collidepoint(pos):
+                pygame.draw.rect(screen, LIGHTORANGE, easy_button)
+                screen.blit(easy_text, [400 - (easy_text.get_width() // 2), 250])
+
+            elif medium_button.collidepoint(pos):
+                pygame.draw.rect(screen, LIGHTORANGE, medium_button)
+                screen.blit(medium_text, [400 - (medium_text.get_width() // 2), 400])
+
+            elif hard_button.collidepoint(pos):
+                pygame.draw.rect(screen, LIGHTORANGE, hard_button)
+                screen.blit(hard_text, [400 - (hard_text.get_width() // 2), 550])
+                
+            #-------
+                
+                
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button.collidepoint(pos):
+                        selectdifficulty_screen = False
+                        
+                    elif easy_button.collidepoint(pos):
+                        difficulty = easy
+                    elif medium_button.collidepoint(pos):
+                        difficulty = medium
+                    elif hard_button.collidepoint(pos):
+                        difficulty = hard
+
+            pygame.display.update()
+
+
+
+        # ------------------- Controls Screen ------------------ #
+        
+        while controls_screen == True:
+
+            screen.fill(BLUE)                               #Set blue background
+
+            back_button = pygame.Rect(500,650, 200, 100)    #Create back button
+            pygame.draw.rect(screen, ORANGE, back_button)   #Draw on screen
+            
+            font = pygame.font.SysFont("Arial", 40)         #Declare font
+
+            
+            left_text = font.render("Move Left: A or Left Arrow Key", True, WHITE)
+            right_text = font.render("Move Right: D or Right Arrow Key", True, WHITE)
+            up_text = font.render("Move Up: W or Up Arrow Key", True, WHITE)
+            down_text = font.render("Move Down: S or Down Arrow Key", True, WHITE)
+            shoot_text = font.render("Shoot bullets: Spacebar", True, WHITE)
+            aim_text = font.render("Aim bullets: Mouse", True, WHITE)
+            unpause_text = font.render("Pause or Unpause game: P", True, WHITE)
+
+            back_text = font.render("Back", True, BLACK)
+
+            screen.blit(left_text, [20, 50])
+            screen.blit(right_text, [20, 150])
+            screen.blit(down_text, [20, 250])
+            screen.blit(shoot_text, [20, 350])
+            screen.blit(aim_text, [20, 450])
+            screen.blit(unpause_text, [20, 550])
+            screen.blit(back_text, [554, 670])
+            
+
+            pos = pygame.mouse.get_pos()
+            
+            if back_button.collidepoint(pos):
+                pygame.draw.rect(screen, LIGHTORANGE, back_button)  #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
+                screen.blit(back_text, [554, 670])
+            
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button.collidepoint(pos):
+                        controls_screen = False
+
+            pygame.display.update()
+
+        # -------------------------------------------------------- #
+
+
+        # ------------------- How To Play Screen -------------------- #
+
+        
+        while howtoplay_screen == True:
+            
+            screen.fill(BLUE)                               #Set blue background
+
+            back_button = pygame.Rect(500,650, 200, 100)    #Create back button
+            pygame.draw.rect(screen, ORANGE, back_button)   #Draw on screen
+            
+            font = pygame.font.SysFont("Arial", 37)         #Declare font
+
+
+            line_1 = font.render("To complete a level, you must kill all the", True, WHITE)
+            line_2 = font.render("enemies, and collect all the coins", True, WHITE)
+
+            line_3 = font.render("Explore the map whilst avoiding the barrage", True, WHITE)
+            line_4 = font.render("of projectiles that will hurt you!", True, WHITE)
+
+            line_5 = font.render("Once a level is complete, go to the South-", True, WHITE)
+            line_6 = font.render("East corner to purchase powerful upgrades", True, WHITE)
+            line_7 = font.render("at the shop, or go through the portal to ", True, WHITE)
+            line_8 = font.render("the next level", True, WHITE)
+
+            line_9 = font.render("If you kill an enemy, you could get a powerup!", True, WHITE)
+            line_10 = font.render("Collect it quickly to gain massive advantages", True, WHITE)
+            line_11 = font.render("They will disappear if left too long!", True, WHITE)
+            
+            font = pygame.font.SysFont("Arial", 40)         #Declare font
+            back_text = font.render("Back", True, BLACK)
+        
+
+            screen.blit(line_1, [20, 20])
+            screen.blit(line_2, [20, 70])
+            
+            screen.blit(line_3, [20, 145])
+            screen.blit(line_4, [20, 195])
+            
+            screen.blit(line_5, [20, 270])
+            screen.blit(line_6, [20, 320])
+            screen.blit(line_7, [20, 370])
+            screen.blit(line_8, [20, 420])
+            
+            screen.blit(line_9, [20, 495])
+            screen.blit(line_10, [20, 545])
+            screen.blit(line_11, [20, 595])
+            
+            screen.blit(back_text, [554, 670])
+
+
+            pos = pygame.mouse.get_pos()
+
+            if back_button.collidepoint(pos):
+                pygame.draw.rect(screen, LIGHTORANGE, back_button)  #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
+                screen.blit(back_text, [554, 670])
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button.collidepoint(pos):
+                        howtoplay_screen = False
+            
+
+            pygame.display.update()
+
+            
+
+        # ----------------------------------------------------------------- #
+        
 
     while pausescreen == True:
 
         for event in pygame.event.get():        #Exit the startscreen if the user hits space
             if event.type == pygame.QUIT:
-                pausescreen = False    #Exit the game if the player presses exit
-                done = True
+                pygame.quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     pausescreen = False

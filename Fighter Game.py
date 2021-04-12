@@ -47,13 +47,54 @@ class Player(pygame.sprite.Sprite):
              self.y_speed = 0
 
              #Set player image and location
-             self.image = pygame.image.load("PlayerGuy.png").convert()
-             self.image.set_colorkey(BLACK)
+
+             self.sprite_images_right = [] #Create list of images
+
+             self.sprite_images_right.append(pygame.image.load("PlayerRight1.png").convert()) #Add all images to list
+             self.sprite_images_right.append(pygame.image.load("PlayerRight2.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight3.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight4.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight5.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight6.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight7.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight8.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight9.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight10.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight11.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight12.png").convert())
+
+             self.current_image_right = 0
+
+
+             self.sprite_images_left = []   #Create list of images
+
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft1.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft2.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft3.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft4.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft5.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft6.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft7.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft8.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft9.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft10.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft11.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft12.png").convert())
+
+
+             self.current_image_left = 0
+             
+
+             self.image = pygame.image.load("PlayerRightStill.png").convert()
+
              self.rect=self.image.get_rect()
+
+             
              self.rect.x=500
              self.rect.y=700
              
-
+             self.animate = 0
+             
          def move(self,x,y):
 
              #Adds the movement values to the x and y of player
@@ -104,7 +145,44 @@ class Player(pygame.sprite.Sprite):
                     player.rect.top = wall.rect.bottom
         
 
-        
+            #Updating player images
+
+            self.animate += 1 
+
+            if self.animate % 6 == 0:                   #Update animation every 1 in 6 frames
+
+                if self.x_speed > 0:
+                
+                    self.current_image_right += 1                                             #Add 1 to counter to loop through the array
+
+                    self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
+
+                    if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
+                        self.current_image_right = 0
+
+                elif self.x_speed < 0:
+
+                    self.current_image_left += 1                                             #Add 1 to counter to loop through the array
+
+                    self.image = self.sprite_images_left[self.current_image_left]                 #Set coin image to the current image in the array
+
+                    if self.current_image_left >= (len(self.sprite_images_left) - 1):             #If the end of the array is reached, go back to the beginning
+                        
+                        self.current_image_left = 0
+
+                elif self.y_speed != 0:
+
+                    self.current_image_right += 1                                             #Add 1 to counter to loop through the array
+
+                    self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
+
+                    if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
+                        self.current_image_right = 0
+                    
+
+                    
+
+            
         
             
 
@@ -120,11 +198,12 @@ class Bullet(pygame.sprite.Sprite):
 
 
         speed = 5
-        self.rect.x = player.rect.x        #Make the bullet spawn where the player is at
-        self.rect.y = player.rect.y
 
-        x_difference = mouse_x - WIDTH/2         #Calculate distance between mouse and player
-        y_difference = mouse_y - HEIGHT/2          #for angle calculations below
+        self.rect.x = player.rect.x
+        self.rect.y = player.rect.y 
+
+        x_difference = (mouse_x - WIDTH/2)             #Calculate distance between mouse and player
+        y_difference = (mouse_y - HEIGHT/2)            #for angle calculations below
 
         angle = math.atan2(y_difference, x_difference); #Works out gradient, and then the angle of the line
         self.x_change = math.cos(angle) * speed         #Multiply the angle with the speed the bullets travel at
@@ -150,13 +229,79 @@ class Enemy(pygame.sprite.Sprite):
         self.damage = 5
         self.speed = 1
         self.distance = 0
-        self.image= pygame.image.load("enemy.png").convert()
+
+        self.sprite_images_right = [] #Create list of images
+
+
+        self.sprite_images_right.append(pygame.image.load("EnemyRight1.png").convert()) #Add all images to array
+        self.sprite_images_right.append(pygame.image.load("EnemyRight2.png").convert())
+        self.sprite_images_right.append(pygame.image.load("EnemyRight3.png").convert())
+        self.sprite_images_right.append(pygame.image.load("EnemyRight4.png").convert())
+
+        self.current_image_right = 0
+
+        self.sprite_images_left = [] #Create list of images
+
+
+        self.sprite_images_left.append(pygame.image.load("EnemyLeft1.png").convert()) #Add all images to array
+        self.sprite_images_left.append(pygame.image.load("EnemyLeft2.png").convert())
+        self.sprite_images_left.append(pygame.image.load("EnemyLeft3.png").convert())
+        self.sprite_images_left.append(pygame.image.load("EnemyLeft4.png").convert())
+
+        self.current_image_left = 0
+
+        
+        self.image = self.sprite_images_right[self.current_image_right]
+
         self.image.set_colorkey(BLACK)
+
         self.rect = self.image.get_rect()
+
+        self.animate = 0
+        
         self.rect.x = x
         self.rect.y = y
         self.x_speed = 0
         self.y_speed = 0
+
+    def update(self):
+
+            self.animate += 1 
+
+            if self.animate % 6 == 0:                   #Update animation every 1 in 6 frames
+
+                if self.x_speed < 0:
+                
+                    self.current_image_right += 1                                             #Add 1 to counter to loop through the array
+
+                    self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
+
+                    if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
+                        self.current_image_right = 0
+
+                elif self.x_speed > 0:
+
+                    self.current_image_left += 1                                             #Add 1 to counter to loop through the array
+
+                    self.image = self.sprite_images_left[self.current_image_left]                 #Set coin image to the current image in the array
+
+                    if self.current_image_left >= (len(self.sprite_images_left) - 1):             #If the end of the array is reached, go back to the beginning
+                        
+                        self.current_image_left = 0
+
+                elif self.y_speed != 0:
+
+                    self.current_image_right += 1                                             #Add 1 to counter to loop through the array
+
+                    self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
+
+                    if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
+                        self.current_image_right = 0
+                    
+
+        
+    
+        
 
 
 
@@ -177,12 +322,40 @@ class Coin(pygame.sprite.Sprite):
 
         super().__init__()
 
-        self.image = pygame.image.load("coin1.png").convert()
-        self.image.set_colorkey(BLACK)
-        self.rect=self.image.get_rect()
-        self.rect.x = x
+        self.sprite_images = [] #Create list of images
+
+        self.sprite_images.append(pygame.image.load("coin1.png").convert()) #Add all images to list
+        self.sprite_images.append(pygame.image.load("coin2.png").convert())
+        self.sprite_images.append(pygame.image.load("coin3.png").convert())
+        self.sprite_images.append(pygame.image.load("coin4.png").convert())
+        self.sprite_images.append(pygame.image.load("coin5.png").convert())
+        self.sprite_images.append(pygame.image.load("coin6.png").convert())
+
+        self.current_image = 0
+
+        self.image = self.sprite_images[self.current_image]                 #Set current image as first image in array
+
+        self.rect=self.image.get_rect() 
+        self.image.set_colorkey(BLACK)                                      #Remove black background
+        
+        self.rect.x = x                                                     #Set coordinates
         self.rect.y = y
 
+        self.animate = 0
+
+    def update(self):
+
+        self.animate += 1
+
+        if self.animate % 4 == 0:
+            
+            self.current_image += 1                                             #Add 1 to counter to loop through the array
+
+            self.image = self.sprite_images[self.current_image]                 #Set coin image to the current image in the array
+            self.image.set_colorkey(BLACK)                                      #Remove black background for new image
+
+            if self.current_image >= (len(self.sprite_images) - 1):             #If the end of the array is reached, go back to the beginning
+                self.current_image = 0
 
 
 class EnemyBullet(pygame.sprite.Sprite):

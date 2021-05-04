@@ -41,7 +41,7 @@ class Wall(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
          def __init__(self):
              super().__init__()
-             self.health = 100
+             self.health = 1000
              self.score = 0
              self.kills = 0
              self.coins = 0
@@ -371,6 +371,12 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.damage = 3
+        
+        if level < 5:
+            self.damage = 3
+        elif level > 4:
+            if level % 5 == 0:
+                self.damage += 1
 
         self.speed = 8
         self.rect.x = x       #Make the bullet spawn where the player is at
@@ -1493,6 +1499,7 @@ while not done:
 
 
 
+
         #Enemy Death
                 
         if enemy.health <= 0:       #Remove the enemy if it has died
@@ -1566,7 +1573,10 @@ while not done:
 
 
     
-            
+    randomfps = random.randint(1,100)
+
+    if randomfps == 100:
+        print(enemy.damage)
     # ---------- Remove powerups after they're 10 seconds old ---------- #
     
     seconds_alive_addhealth = 0
@@ -1817,6 +1827,7 @@ while not done:
                 level = oldlevel + 1
 
 
+
                 #Adding in features for new levels
                 for y in range(24):
                     for x in range(26):
@@ -1841,6 +1852,8 @@ while not done:
                             coin=Coin(x*100, y*100)
                             all_sprites_list.add(coin)
                             coin_list.add(coin)
+
+
                             
 
     # -------------------------------------------------------- #

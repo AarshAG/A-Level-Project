@@ -41,7 +41,7 @@ class Wall(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
          def __init__(self):
              super().__init__()
-             self.health = 1000
+             self.health = 3000
              self.score = 0
              self.kills = 0
              self.coins = 0
@@ -227,7 +227,13 @@ class Enemy(pygame.sprite.Sprite):
 
         super().__init__()
 
-        self.health = 20
+        if difficulty == 1:                 #If the user selects a higher difficulty,
+            self.basehealth = 20                #Change enemy health to be higher
+        elif difficulty == 2:
+            self.basehealth = 30
+        elif difficulty == 3:
+            self.basehealth = 40
+            
         self.score = 10
         self.damage = 5
         self.speed = 1
@@ -267,40 +273,45 @@ class Enemy(pygame.sprite.Sprite):
         self.x_speed = 0
         self.y_speed = 0
 
+        self.health = self.basehealth
+
     def update(self):
 
-            self.animate += 1 
+        self.animate += 1 
 
-            if self.animate % 6 == 0:                   #Update animation every 1 in 6 frames
+        if self.animate % 6 == 0:                   #Update animation every 1 in 6 frames
 
-                if self.x_speed < 0:
-                
-                    self.current_image_right += 1                                             #Add 1 to counter to loop through the array
+            if self.x_speed < 0:
+            
+                self.current_image_right += 1                                             #Add 1 to counter to loop through the array
 
-                    self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
+                self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
 
-                    if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
-                        self.current_image_right = 0
+                if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
+                    self.current_image_right = 0
 
-                elif self.x_speed > 0:
+            elif self.x_speed > 0:
 
-                    self.current_image_left += 1                                             #Add 1 to counter to loop through the array
+                self.current_image_left += 1                                             #Add 1 to counter to loop through the array
 
-                    self.image = self.sprite_images_left[self.current_image_left]                 #Set coin image to the current image in the array
+                self.image = self.sprite_images_left[self.current_image_left]                 #Set coin image to the current image in the array
 
-                    if self.current_image_left >= (len(self.sprite_images_left) - 1):             #If the end of the array is reached, go back to the beginning
-                        
-                        self.current_image_left = 0
-
-                elif self.y_speed != 0:
-
-                    self.current_image_right += 1                                             #Add 1 to counter to loop through the array
-
-                    self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
-
-                    if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
-                        self.current_image_right = 0
+                if self.current_image_left >= (len(self.sprite_images_left) - 1):             #If the end of the array is reached, go back to the beginning
                     
+                    self.current_image_left = 0
+
+            elif self.y_speed != 0:
+
+                self.current_image_right += 1                                             #Add 1 to counter to loop through the array
+
+                self.image = self.sprite_images_right[self.current_image_right]                 #Set coin image to the current image in the array
+
+                if self.current_image_right >= (len(self.sprite_images_right) - 1):             #If the end of the array is reached, go back to the beginning
+                    self.current_image_right = 0
+
+
+    
+                
 
         
     
@@ -372,11 +383,6 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.damage = 3
         
-        if level < 5:
-            self.damage = 3
-        elif level > 4:
-            if level % 5 == 0:
-                self.damage += 1
 
         self.speed = 8
         self.rect.x = x       #Make the bullet spawn where the player is at
@@ -1103,7 +1109,11 @@ while not done:
                     coin=Coin(x*100, y*100)
                     all_sprites_list.add(coin)
                     coin_list.add(coin)
+
+                
         level += 1
+
+
 
 
 
@@ -1337,7 +1347,8 @@ while not done:
     #Once the powerup has reached the set time, reverse the extra damage
     if extradamage_time_left > 20:
         extra_damage = False
-        bullet.damage = 10
+        for bullet in bullet_list:
+            bullet.damage = 10
         player.damage = 5
 
 
@@ -1573,10 +1584,10 @@ while not done:
 
 
     
-    randomfps = random.randint(1,100)
+    randomfps = random.randint(1,50)
 
-    if randomfps == 100:
-        print(enemy.damage)
+    if randomfps == 50:
+        print(enemy.health)
     # ---------- Remove powerups after they're 10 seconds old ---------- #
     
     seconds_alive_addhealth = 0
@@ -1854,11 +1865,15 @@ while not done:
                             coin_list.add(coin)
 
 
-                            
+                #Adds more health to enemy each level to make it harder
+
+                for enemy in enemy_list:
+                    enemy.health += (level*2)
 
     # -------------------------------------------------------- #
 
-
+    for enemybullet in enemy_bullet_list:
+        enemybullet.damage += (level*2)
 
     # ----------------- Displaying things on screen --------------- #
     

@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 from os import path
+import time
 # Define some colors
 BLACK = (0, 0, 0)
 GRAY = (105, 105, 105)
@@ -1317,19 +1318,12 @@ while not done:
 
 
 
-
-    rando = random.randint(1,50)
-    if rando == 50:
-        print(bullet_damage)
-
     #Extra damage powerup
             
     if len(extradamage_list) > 0:
         
         extradamage_hit_list = pygame.sprite.spritecollide(player, extradamage_list, False)
-
-        #Set this variable to true, used for blitting the powerups on the screen so player can see which powerups are active
-        extra_damage = True                                         
+                                       
          
         for extradamage in extradamage_hit_list:
             
@@ -1341,25 +1335,30 @@ while not done:
             #Set the start timer so that the powerup can remove itself later
             extradamage_start_time = pygame.time.get_ticks()
 
-                
+            #Set this variable to true, used for blitting the powerups on the screen so player can see which powerups are active
+            extra_damage = True  
+
             #If the powerup is active,
             if extra_damage == True: 
-
-                #Start the timer for how long it has left
-                extradamage_time_left = (pygame.time.get_ticks() - extradamage_start_time)/1000 
 
                 #Increase the bullet damage§
                 bullet_damage += 10
 
+               
+    #Start the timer for how long it has left
+    if extra_damage == True:
+        extradamage_time_left = int((pygame.time.get_ticks() - extradamage_start_time) / 1000)
 
     #Once the powerup has reached the set time, reverse the extra damage
-    if extradamage_time_left == 20:
+    if extradamage_time_left == 10:
         extra_damage = False
 
         bullet_damage -= 10
+        extradamage_time_left = 0
 
-
-
+    i = random.randint(1,50)
+    if i == 1:
+        print(bullet_damage)
 
     #-------------------
 
@@ -1384,7 +1383,7 @@ while not done:
             
 
     shield_powerup_time_left = (pygame.time.get_ticks() - shield_powerup_start_time) / 1000
-    if shield_powerup_time_left > 20:
+    if shield_powerup_time_left > 10:
         
         shield_powerup_active = False
         shield_powerup_time_left = 0
@@ -1413,7 +1412,7 @@ while not done:
 
     extrabullets_time_left = (pygame.time.get_ticks() - extrabullets_start_time) / 1000
 
-    if extrabullets_time_left > 20:
+    if extrabullets_time_left > 10:
         extrabullets_active = False
         extrabullets_time_left = 0
 

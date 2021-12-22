@@ -1,8 +1,12 @@
+
+#Import libraries
 import pygame
 import random
 import math
 from os import path
 import time
+
+
 # Define some colors
 BLACK = (0, 0, 0)
 GRAY = (105, 105, 105)
@@ -42,8 +46,8 @@ class Wall(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
          def __init__(self):
              super().__init__()
-             self.health = 3000
-             self.score = 1000
+             self.health = 100
+             self.score = 0
              self.kills = 0
              self.coins = 0
              self.damage = 5
@@ -54,10 +58,10 @@ class Player(pygame.sprite.Sprite):
 
              self.sprite_images_right = [] #Create list of images
 
-             self.sprite_images_right.append(pygame.image.load("PlayerRight1.png").convert()) #Add all images to list
-             self.sprite_images_right.append(pygame.image.load("PlayerRight2.png").convert())
-             self.sprite_images_right.append(pygame.image.load("PlayerRight3.png").convert())
-             self.sprite_images_right.append(pygame.image.load("PlayerRight4.png").convert())
+             self.sprite_images_right.append(pygame.image.load("PlayerRight1.png").convert()) #All the images are walking cycles 1 frame ahead of each other
+             self.sprite_images_right.append(pygame.image.load("PlayerRight2.png").convert()) #Add all the images to a list
+             self.sprite_images_right.append(pygame.image.load("PlayerRight3.png").convert()) #Since there are seperate animations for when the player is moving
+             self.sprite_images_right.append(pygame.image.load("PlayerRight4.png").convert()) #left, and right, two different variables, and lists must be used
              self.sprite_images_right.append(pygame.image.load("PlayerRight5.png").convert())
              self.sprite_images_right.append(pygame.image.load("PlayerRight6.png").convert())
              self.sprite_images_right.append(pygame.image.load("PlayerRight7.png").convert())
@@ -67,15 +71,15 @@ class Player(pygame.sprite.Sprite):
              self.sprite_images_right.append(pygame.image.load("PlayerRight11.png").convert())
              self.sprite_images_right.append(pygame.image.load("PlayerRight12.png").convert())
 
-             self.current_image_right = 0
+             self.current_image_right = 0 #Count variable used for when the player is walking right
 
 
              self.sprite_images_left = []   #Create list of images
 
-             self.sprite_images_left.append(pygame.image.load("PlayerLeft1.png").convert())
-             self.sprite_images_left.append(pygame.image.load("PlayerLeft2.png").convert())
-             self.sprite_images_left.append(pygame.image.load("PlayerLeft3.png").convert())
-             self.sprite_images_left.append(pygame.image.load("PlayerLeft4.png").convert())
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft1.png").convert()) #All the images are walking cycles 1 frame ahead of each other
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft2.png").convert()) #Add all the images to a list
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft3.png").convert()) #Since there are seperate animations for when the player is moving
+             self.sprite_images_left.append(pygame.image.load("PlayerLeft4.png").convert()) #left, and right, two different variables, and lists must be used
              self.sprite_images_left.append(pygame.image.load("PlayerLeft5.png").convert())
              self.sprite_images_left.append(pygame.image.load("PlayerLeft6.png").convert())
              self.sprite_images_left.append(pygame.image.load("PlayerLeft7.png").convert())
@@ -86,7 +90,7 @@ class Player(pygame.sprite.Sprite):
              self.sprite_images_left.append(pygame.image.load("PlayerLeft12.png").convert())
 
 
-             self.current_image_left = 0
+             self.current_image_left = 0 #Count variable used for when the player is walking left
              
 
              self.image = pygame.image.load("PlayerRightStill.png").convert()
@@ -94,10 +98,10 @@ class Player(pygame.sprite.Sprite):
              self.rect=self.image.get_rect()
 
              
-             self.rect.x=500
+             self.rect.x=500 
              self.rect.y=700
              
-             self.animate = 0
+             self.animate = 0 #Used to slow down the speed of animations
              
          def move(self,x,y):
 
@@ -191,21 +195,21 @@ class Player(pygame.sprite.Sprite):
             
 
 
-class Bullet(pygame.sprite.Sprite):
+class Bullet(pygame.sprite.Sprite):                             #Creating bullet class
     def __init__(self,mouse_x,mouse_y):
         super().__init__()
 
-        self.image = pygame.image.load("bullet.png").convert()
-        self.image.set_colorkey(BLACK)
+        self.image = pygame.image.load("bullet.png").convert()  #Setting picture
+        self.image.set_colorkey(BLACK)                          #Removing background
         self.rect = self.image.get_rect()
 
-        self.damage = bullet_damage
+        self.damage = bullet_damage                             #This is a global variable used to assign the value, since it's needed permanently for scoreboards,
 
 
 
-        speed = 5
+        speed = 5                                               #Set constant speed
 
-        self.rect.x = player.rect.x
+        self.rect.x = player.rect.x         #Spawn it where the player is
         self.rect.y = player.rect.y 
 
         x_difference = (mouse_x - WIDTH/2)             #Calculate distance between mouse and player
@@ -250,7 +254,7 @@ class Enemy(pygame.sprite.Sprite):
         self.sprite_images_right.append(pygame.image.load("EnemyRight3.png").convert())
         self.sprite_images_right.append(pygame.image.load("EnemyRight4.png").convert())
 
-        self.current_image_right = 0
+        self.current_image_right = 0 #Count variable for when the enemy is moving right
 
         self.sprite_images_left = [] #Create list of images
 
@@ -260,16 +264,16 @@ class Enemy(pygame.sprite.Sprite):
         self.sprite_images_left.append(pygame.image.load("EnemyLeft3.png").convert())
         self.sprite_images_left.append(pygame.image.load("EnemyLeft4.png").convert())
 
-        self.current_image_left = 0
+        self.current_image_left = 0 #Count variable for when the enemy is moving left
 
         
-        self.image = self.sprite_images_right[self.current_image_right]
+        self.image = self.sprite_images_right[self.current_image_right] #Set default image for when it's still at the start
 
-        self.image.set_colorkey(BLACK)
+        self.image.set_colorkey(BLACK) #Remove background
 
         self.rect = self.image.get_rect()
 
-        self.animate = 0
+        self.animate = 0 #Counter used to slow down the animation
         
         self.rect.x = x
         self.rect.y = y
@@ -280,7 +284,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
 
-        self.animate += 1 
+        self.animate += 1  #Add value every game tick, and only update every 6th tick to slow down the animation
 
         if self.animate % 6 == 0:                   #Update animation every 1 in 6 frames
 
@@ -322,13 +326,13 @@ class Enemy(pygame.sprite.Sprite):
 
 
 
-class Portal(pygame.sprite.Sprite):
+class Portal(pygame.sprite.Sprite):     #Portal class
 
     def __init__(self,x,y):
 
         super().__init__()
 
-        self.image = pygame.image.load("nether.png").convert()
+        self.image = pygame.image.load("nether.png").convert()  #Setting image
         self.rect=self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -435,28 +439,26 @@ class Camera(pygame.sprite.Sprite):
 
 #                     Powerups 
 
-class AddHealth(pygame.sprite.Sprite):
+class AddHealth(pygame.sprite.Sprite):                          #AddHealth class for powerup used to give player health
 
     def __init__(self,x,y):
 
         super().__init__()
 
-        self.health = 15
-        self.addhealth = 10
-        self.image=pygame.image.load("addhealth.png").convert()
-        self.image.set_colorkey(BLACK)
+        self.addhealth = 10                                         #This is the health it adds to the player
+        self.image=pygame.image.load("addhealth.png").convert()     #Setting image
+        self.image.set_colorkey(BLACK)                              #Removing background
         self.rect=self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         
         
-class ExtraDamage(pygame.sprite.Sprite):
+class ExtraDamage(pygame.sprite.Sprite):    #ExtraDamage class used to give player extra damage 
 
     def __init__(self,x,y):
 
         super().__init__()
 
-        self.health = 15
         self.image=pygame.image.load("extradamage.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect=self.image.get_rect()
@@ -465,32 +467,19 @@ class ExtraDamage(pygame.sprite.Sprite):
 
 
 
-class ShieldPowerup(pygame.sprite.Sprite):
+class ShieldPowerup(pygame.sprite.Sprite):  #This is the class for the icon that the player actually picks up to give it shield
 
     def __init__(self,x,y):
 
         super().__init__()
 
-        self.health = 15
         self.image=pygame.image.load("shield_powerup.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect=self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
-class ShieldEffect(pygame.sprite.Sprite):
-
-    def __init__(self,x,y):
-
-        super().__init__()
-
-        self.image=pygame.image.load("shield_effect.png").convert()
-        self.image.set_colorkey(WHITE)
-        self.rect=self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-class ExtraBullets(pygame.sprite.Sprite):
+class ExtraBullets(pygame.sprite.Sprite): #ExtraBullets class used to remove the limit on the number of bullets the player can shoot (temporarily)
 
     def __init__(self,x,y):
 
@@ -561,9 +550,6 @@ extradamage_hit_list = pygame.sprite.Group()
 shield_powerup_list = pygame.sprite.Group()
 shield_powerup_hit_list = pygame.sprite.Group()
 
-shield_effect_list = pygame.sprite.Group()
-shield_effect_hit_list = pygame.sprite.Group()
-
 extrabullets_list = pygame.sprite.Group()
 extrabullets_hit_list = pygame.sprite.Group()
 
@@ -593,15 +579,17 @@ shield_icon.set_colorkey(BLACK)
 
 #Variables needed to be set before main loop
 
-enemy_kills = 0
-coins_left = 0
+enemy_kills = 0 #Counter of how many enemies player has killed
+coins_left = 0 #Variable used to see how 
 level = 0
-seconds_alive = 0
 
 
-extradamage_start_time = 0
-extradamage_time_left = 0
-extra_damage = False
+#Variables needed in timing calculations for different powerups
+
+
+extradamage_start_time = 0  #Start timer of when powerup is collected       
+extradamage_time_left = 0   #Variable used to see how long is left of a powerup before it's removed
+extra_damage = False        #Boolean used to see whether a powerup is active or not
 
 shield_powerup_start_time = 0
 shield_powerup_time_left = 0
@@ -615,6 +603,9 @@ extrabullets_active = False
 
 directory = path.dirname(__file__) #Get the path to the file
 
+
+#Boolean variables that need to be declared before main game loop
+
 pausescreen = False
 newlevel = False
 pause = False
@@ -626,12 +617,16 @@ howtoplay_screen = False
 controls_screen = False
 selectdifficulty_screen = False
 
+#difficulty can't just be set to a random string, so I gave easy, medium, and hard
+#number values for convenience and understandability of the code
 
 easy = 1
 medium = 2
 hard = 3
 maxbullets = 3
+
 bullet_damage = 10
+
 difficulty = easy
 
 # Used to manage how fast the screen updates
@@ -709,10 +704,10 @@ while not done:
 
 
 
-        font = pygame.font.SysFont("Arial", 50)
+        font = pygame.font.SysFont("Arial", 50) #Set font size and type
         
         #Set the text
-        start_text = font.render("Slime Fighters", True, WHITE)
+        start_text = font.render("Slime Fighters", True, WHITE)         
         click_text= font.render("Click to Play", True, WHITE)
         hs_text = font.render("Highscore: " + str(highscore), True,WHITE)
 
@@ -819,7 +814,7 @@ while not done:
             #------
             
             back_button = pygame.Rect(500,650, 200, 100)    #Create buttons
-            pygame.draw.rect(screen, ORANGE, back_button)   #Draw on screens
+            pygame.draw.rect(screen, ORANGE, back_button)   #Draw all the buttons on the screen
 
 
             easy_button = pygame.Rect(275,220,250,120)      
@@ -867,9 +862,9 @@ while not done:
             
             pos = pygame.mouse.get_pos()                    #Get mouse position
             
-            if back_button.collidepoint(pos):
-                pygame.draw.rect(screen, LIGHTORANGE, back_button)  #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
-                screen.blit(back_text, [543, 670])
+            if back_button.collidepoint(pos):                       #Check whether the mouse is colliding (hovering over) the rectangle we created earlier
+                pygame.draw.rect(screen, LIGHTORANGE, back_button)  #If it is hovering over, change the colour to a lighter shade to indicate it to the player
+                screen.blit(back_text, [543, 670])                  #Re-blit the text over the colour so that it is seen, otherwise it's hidden underneath the new colour
                 
             elif easy_button.collidepoint(pos):
                 pygame.draw.rect(screen, LIGHTORANGE, easy_button)
@@ -886,14 +881,15 @@ while not done:
             #-------
                 
                 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+            for event in pygame.event.get():                #Event loop for clicking the buttons
+                if event.type == pygame.QUIT:               #Quit game if user presses quit
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if back_button.collidepoint(pos):
+                    
+                    if back_button.collidepoint(pos):       #If the user clicks the back button, go off of the select difficulty screen
                         selectdifficulty_screen = False
                         
-                    elif easy_button.collidepoint(pos):
+                    elif easy_button.collidepoint(pos):     #Set the value of difficulty depending on what the user clicks
                         difficulty = easy
                     elif medium_button.collidepoint(pos):
                         difficulty = medium
@@ -916,7 +912,7 @@ while not done:
             font = pygame.font.SysFont("Arial", 40)         #Declare font
 
             
-            left_text = font.render("Move Left: A or Left Arrow Key", True, WHITE)
+            left_text = font.render("Move Left: A or Left Arrow Key", True, WHITE)      #Set the value of the text for each line
             right_text = font.render("Move Right: D or Right Arrow Key", True, WHITE)
             up_text = font.render("Move Up: W or Up Arrow Key", True, WHITE)
             down_text = font.render("Move Down: S or Down Arrow Key", True, WHITE)
@@ -924,9 +920,9 @@ while not done:
             aim_text = font.render("Aim bullets: Mouse", True, WHITE)
             unpause_text = font.render("Pause or Unpause game: P", True, WHITE)
 
-            back_text = font.render("Back", True, BLACK)
+            back_text = font.render("Back", True, BLACK) #Back button
 
-            screen.blit(left_text, [20, 50])
+            screen.blit(left_text, [20, 50])            #Blit the text on screen at the corresponding coordinates
             screen.blit(right_text, [20, 150])
             screen.blit(down_text, [20, 250])
             screen.blit(shoot_text, [20, 350])
@@ -942,21 +938,19 @@ while not done:
                 screen.blit(back_text, [554, 670])
             
 
-            for event in pygame.event.get():
+            for event in pygame.event.get():                #Event loop to see whether user is clicking a button
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if back_button.collidepoint(pos):
-                        controls_screen = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:  #If user clicks,
+                    if back_button.collidepoint(pos):       #and is hovering over the back button,
+                        controls_screen = False             #go back from the current screen
 
-            pygame.display.update()
+            pygame.display.update()         #Update screen
 
         # -------------------------------------------------------- #
 
 
         # ------------------- How To Play Screen -------------------- #
-
-        
         while howtoplay_screen == True:
             
             screen.fill(BLUE)                               #Set blue background
@@ -967,7 +961,7 @@ while not done:
             font = pygame.font.SysFont("Arial", 37)         #Declare font
 
 
-            line_1 = font.render("To complete a level, you must kill all the", True, WHITE)
+            line_1 = font.render("To complete a level, you must kill all the", True, WHITE)     #Set the value of each line of text
             line_2 = font.render("enemies, and collect all the coins", True, WHITE)
 
             line_3 = font.render("Explore the map whilst avoiding the barrage", True, WHITE)
@@ -985,8 +979,7 @@ while not done:
             font = pygame.font.SysFont("Arial", 40)         #Declare font
             back_text = font.render("Back", True, BLACK)
         
-
-            screen.blit(line_1, [20, 20])
+            screen.blit(line_1, [20, 20])   #Blit each line of text to the screen
             screen.blit(line_2, [20, 70])
             
             screen.blit(line_3, [20, 145])
@@ -1001,10 +994,9 @@ while not done:
             screen.blit(line_10, [20, 545])
             screen.blit(line_11, [20, 595])
             
-            screen.blit(back_text, [554, 670])
+            screen.blit(back_text, [554, 670])  #Back button
 
-
-            pos = pygame.mouse.get_pos()
+            pos = pygame.mouse.get_pos() #Get mouse position
 
             if back_button.collidepoint(pos):
                 pygame.draw.rect(screen, LIGHTORANGE, back_button)  #If the mouse is hovering over the button, make the colour lighter to indicate that it is interactable
@@ -1013,19 +1005,22 @@ while not done:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if back_button.collidepoint(pos):
-                        howtoplay_screen = False
-            
-
-            pygame.display.update()
+                elif event.type == pygame.MOUSEBUTTONDOWN: #If the user clicks,
+                    if back_button.collidepoint(pos):      #and is hovering over the back button,
+                        howtoplay_screen = False           #Go back from the screen
+                 
+            pygame.display.update()     #Update screen
 
             
 
         # ----------------------------------------------------------------- #
-        
 
-    while pausescreen == True:
+    
+    #Main game loop
+        
+    while pausescreen == True: #If the user has pressed the p key to pause,
+
+     
 
         for event in pygame.event.get():        #Exit the startscreen if the user hits space
             if event.type == pygame.QUIT:
@@ -1034,7 +1029,7 @@ while not done:
                 if event.key == pygame.K_p:
                     pausescreen = False
 
-        screen.fill(BLACK)
+        screen.fill(BLACK)                              #Display the screen
         font = pygame.font.SysFont("Arial", 50)
         pausetext = font.render("Game Paused, Press P to continue", True, WHITE, BLACK)
         screen.blit(pausetext, [400-(pausetext.get_width() //2), 300])
@@ -1048,7 +1043,7 @@ while not done:
     # -------- Create level at the start of the game, and also if the player dies -------- #
 
 
-    if level == 0 and pause == False:
+    if level == 0 and pause == False: #If the game is started, and the player
         for coin in coin_list:
             coin_list.remove(coin)
         for enemy in enemy_list:
@@ -1062,7 +1057,7 @@ while not done:
         # 3 = Portal
         # 4 = Coins
 
-        maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        maps = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #Setting maps array
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -1090,14 +1085,14 @@ while not done:
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 
 
-        for y in range(24):
+        for y in range(24):                     #Looping through array to create walls
             for x in range(26):
                 if maps[y][x] == 1:
                     wall=Wall(x*100, y*100)
                     all_sprites_list.add(wall)
                     wall_list.add(wall)
 
-        for y in range(24):
+        for y in range(24):                     #Looping through array to create enemies
             for x in range(26):
                 if maps[y][x] == 2:
                     enemy=Enemy(x*100, y*100)
@@ -1110,7 +1105,7 @@ while not done:
         'Portal is created in while loop dependant on specific conditions'
 
 
-        randomcoin = random.randrange(1,4)
+        randomcoin = random.randrange(1,4)  ##Looping through array to create coins (1 in 4 chance)
         for y in range(24):
             for x in range(26):
                 if maps[y][x] == 4:
@@ -1145,7 +1140,7 @@ while not done:
 
     # ------- Player Death ------ #
 
-    if player.health <= 0:
+    if player.health <= 0:  #If player dies
 
         for event in pygame.event.get():        #Exit the startscreen if the user hits space
             if event.type == pygame.QUIT:
@@ -1154,9 +1149,9 @@ while not done:
                 if event.key == pygame.K_SPACE:
                     startscreen = True
 
-        screen.blit(startscreen_image, [0,0])
+        screen.blit(startscreen_image, [0,0])   #Background screen
 
-        font = pygame.font.SysFont("Arial", 50)
+        font = pygame.font.SysFont("Arial", 50) #Set value of death text
         death_text = font.render("You died", True, WHITE, BLACK)
         restart_text = font.render("Press space to go to the main menu", True, WHITE, BLACK)
         screen.blit(death_text, [400-(death_text.get_width() // 2), 300])
@@ -1206,14 +1201,6 @@ while not done:
             all_sprites_list.remove(extradamage)
         for extradamage in powerup_list:
             powerup_list.remove(extradamage)
-            
-
-        for shield_effect in shield_effect_list:
-            shield_effect_list.remove(shield)
-        for shield_effect in all_sprites_list:
-            all_sprites_list.remove(shield_effect)
-        for shield_effect in powerup_list:
-            powerup_list.remove(shield_effect)
             
 
         for shield_powerup in shield_powerup_list:
@@ -1302,7 +1289,7 @@ while not done:
     
     #Addhealth powerup
         
-    if len(addhealth_list) > 0:
+    if len(addhealth_list) > 0:     #Only run code if the powerup is present (to reduce lag)
 
         addhealth_hit_list = pygame.sprite.spritecollide(player, addhealth_list, False)
             
@@ -1320,7 +1307,7 @@ while not done:
 
     #Extra damage powerup
             
-    if len(extradamage_list) > 0:
+    if len(extradamage_list) > 0:   #Only run code if the powerup is present (to reduce lag)
         
         extradamage_hit_list = pygame.sprite.spritecollide(player, extradamage_list, False)
                                        
@@ -1356,26 +1343,23 @@ while not done:
         bullet_damage -= 10
         extradamage_time_left = 0
 
-    i = random.randint(1,50)
-    if i == 1:
-        print(bullet_damage)
 
     #-------------------
 
-    if len(shield_powerup_list) > 0:
+    if len(shield_powerup_list) > 0:    #Only run code if the powerup is present (to reduce lag)
 
         shield_powerup_hit_list = pygame.sprite.spritecollide(player, shield_powerup_list, False)
 
         
 
-        for shield_powerup in shield_powerup_hit_list:
+        for shield_powerup in shield_powerup_hit_list: #If the player collides with the powerup
 
             #Remove the collided sprite
-            shield_powerup_list.remove(shield_powerup)
+            shield_powerup_list.remove(shield_powerup)  #Remove the powerup
             powerup_list.remove(shield_powerup)
             all_sprites_list.remove(shield_powerup)
             
-            shield_powerup_start_time = pygame.time.get_ticks()
+            shield_powerup_start_time = pygame.time.get_ticks() #And start the timer
 
             shield_powerup_active = True
 
@@ -1463,7 +1447,7 @@ while not done:
 
 
         #Enemy y movement
-        if enemy.distance <= 600 and enemy.distance >= 400:                 #The X and Y movements must be done seperately to avoid huge glitches
+        if enemy.distance <= 600 and enemy.distance >= 600:                 #The X and Y movements must be done seperately to avoid huge glitches
             enemy.rect.y += enemy.y_speed/400                               #Calculating seperately allows for much smoother movement, and for the code to actual work
 
         elif enemy.distance <= 400:
@@ -1518,19 +1502,18 @@ while not done:
                 
         if enemy.health <= 0:       #Remove the enemy if it has died
             
-            spawnpowerup = 1 #random.randint(1,5)                      #1 in 5 chance of spawning a powerup
+            spawnpowerup = random.randint(1,5)                      #1 in 5 chance of spawning a powerup
             if spawnpowerup == 1:
 
 
-
                 #Addhealth powerup
-                randompowerup = 2 #random.randint(1,4)                 #Randomly choose which powerup is spawned
+                randompowerup = random.randint(1,4)                 #Randomly choose which powerup is spawned
                 
                 if randompowerup == 1:                                #This powerup adds health to the enemy
                 
                     addhealth = AddHealth(enemy.rect.x,enemy.rect.y)    #Create powerup where enemy died
                     
-                    addhealth_list.add(addhealth)
+                    addhealth_list.add(addhealth)   #Add to lists
                     powerup_list.add(addhealth)
                     all_sprites_list.add(addhealth)
                     
@@ -1540,15 +1523,15 @@ while not done:
 
 
                 #Extra damage powerup
-                elif randompowerup == 2:
+                elif randompowerup == 2:    #If the random powerup is 2, create an extra damage powerup
 
                     extradamage = ExtraDamage(enemy.rect.x,enemy.rect.y)    #Create powerup where enemy died
 
-                    extradamage_list.add(extradamage)
+                    extradamage_list.add(extradamage)   #Add to lists
                     powerup_list.add(extradamage)
                     all_sprites_list.add(extradamage)
 
-                    extradamage_start_ticks = pygame.time.get_ticks()
+                    extradamage_start_ticks = pygame.time.get_ticks() #Start the timer so that it can be removed in 10 seconds
 
                 # --------------------
 
@@ -1559,24 +1542,24 @@ while not done:
 
                     shield_powerup = ShieldPowerup(enemy.rect.x, enemy.rect.y)             #Create powerup where enemy died
 
-                    shield_powerup_list.add(shield_powerup)
+                    shield_powerup_list.add(shield_powerup) #Add to lists
                     powerup_list.add(shield_powerup)
                     all_sprites_list.add(shield_powerup)
 
-                    shield_powerup_start_ticks = pygame.time.get_ticks()
+                    shield_powerup_start_ticks = pygame.time.get_ticks()    #Start the timer so that it can be removed in 10 seconds
 
                 # -------------------
 
                 #Infinite bullets powerup
                 elif randompowerup == 4:
 
-                    extrabullets = ExtraBullets(enemy.rect.x, enemy.rect.y)
+                    extrabullets = ExtraBullets(enemy.rect.x, enemy.rect.y) #Create powerup where enemy died
 
-                    extrabullets_list.add(extrabullets)
+                    extrabullets_list.add(extrabullets) #Add to lists
                     powerup_list.add(extrabullets)
                     all_sprites_list.add(extrabullets)
 
-                    extrabullets_start_ticks = pygame.time.get_ticks()
+                    extrabullets_start_ticks = pygame.time.get_ticks()  #Start the timer so that it can be removed in 10 seconds
                 
                 
             
@@ -1600,9 +1583,9 @@ while not done:
         
         seconds_alive_addhealth = (pygame.time.get_ticks() - addhealth_start_ticks)/1000    #Get the time since the sprite has been created
             
-        if seconds_alive_addhealth >= 10:                                         #Remove the health powerup if it has been left for more than the set time
+        if seconds_alive_addhealth >= 10:                                         #If the powerup is left for more than 10 seconds
             
-            addhealth_list.remove(addhealth)
+            addhealth_list.remove(addhealth)                                        #Remove it from the game
             powerup_list.remove(addhealth)
             all_sprites_list.remove(addhealth)
 
@@ -1611,10 +1594,11 @@ while not done:
             
     for extradamage in extradamage_list:
 
-        seconds_alive_extradamage = (pygame.time.get_ticks() - extradamage_start_ticks)/1000
+        seconds_alive_extradamage = (pygame.time.get_ticks() - extradamage_start_ticks)/1000    #Get the time since the sprite has been created
 
-        if seconds_alive_extradamage >= 10:
-            extradamage_list.remove(extradamage)
+        if seconds_alive_extradamage >= 10:                                         #If the powerup is left for more than 10 seconds
+            
+            extradamage_list.remove(extradamage)                                    #Remove it from the game
             powerup_list.remove(extradamage)
             all_sprites_list.remove(extradamage)
 
@@ -1623,11 +1607,11 @@ while not done:
 
     for shield_powerup in shield_powerup_list:
 
-        seconds_alive_shield = (pygame.time.get_ticks() - shield_powerup_start_ticks)/1000
+        seconds_alive_shield = (pygame.time.get_ticks() - shield_powerup_start_ticks)/1000  #Get the time since the sprite has been created
 
-        if seconds_alive_shield >= 10:
+        if seconds_alive_shield >= 10:                                              #If the powerup is left for more than 10 seconds
             
-            shield_powerup_list.remove(shield_powerup)
+            shield_powerup_list.remove(shield_powerup)                              #Remove it from the game
             powerup_list.remove(shield_powerup)
             all_sprites_list.remove(shield_powerup)
 
@@ -1636,10 +1620,11 @@ while not done:
             
     for extrabullets in extrabullets_list:
 
-        seconds_alive_extrabullets = (pygame.time.get_ticks() - extrabullets_start_ticks)/1000
+        seconds_alive_extrabullets = (pygame.time.get_ticks() - extrabullets_start_ticks)/1000  #Get the time since the sprite has been created
 
-        if seconds_alive_extrabullets >= 10:
-            extrabullets_list.remove(extrabullets)
+        if seconds_alive_extrabullets >= 10:                                        #If the powerup is left for more than 10 seconds
+            
+            extrabullets_list.remove(extrabullets)                                  #Remove it from the game
             powerup_list.remove(extrabullets)
             all_sprites_list.remove(extrabullets)
             
@@ -1703,7 +1688,7 @@ while not done:
                 while shop == True:
                     pause = True
                     for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
+                        if event.type == pygame.QUIT:       #If the player presses quit, exit all the loops
                                 shop = False
                                 pause = False
                                 done = True
@@ -1714,24 +1699,24 @@ while not done:
                     pygame.draw.rect(screen, ORANGE, continue_button)   #Draw on screens
 
                     
-                    font = pygame.font.SysFont("Arial", 50)
+                    font = pygame.font.SysFont("Arial", 50) #Set font size and type
                     
-                    shop_title_text = font.render("Shop", True, WHITE)
+                    shop_title_text = font.render("Shop", True, WHITE)  #Set title text
 
 
 
-                    font = pygame.font.SysFont("Arial", 40)
+                    font = pygame.font.SysFont("Arial", 40) #Set font size and type
 
                     continue_text = font.render("Continue", True, BLACK)
                     
-                    shop_text = font.render("Purchase permanent upgrades for the player", True, WHITE)
+                    shop_text = font.render("Purchase permanent upgrades for the player", True, WHITE)      #Set explanation text
                     shop_text2 = font.render("Press the corresponding letters to purchase", True, WHITE)
                     shop_text3 = font.render("an upgrade", True, WHITE)
 
 
-                    font = pygame.font.SysFont("Arial", 45)
+                    font = pygame.font.SysFont("Arial", 45) #Set font size and type
                     
-                    upgrade_text = font.render("Upgrade", True, WHITE)
+                    upgrade_text = font.render("Upgrade", True, WHITE)  #Set subtitle txet
                     cost_text = font.render("Cost", True, WHITE)
 
                     exit_text = font.render("Exit", True, WHITE)
@@ -1740,15 +1725,16 @@ while not done:
 
                     font = pygame.font.SysFont("Arial", 40)
                     
-                    A_text = font.render("A:    20 Health            -          100 Score", True, WHITE)
+                    A_text = font.render("A:    20 Health            -          100 Score", True, WHITE)    #Set information text
                     B_text = font.render("B:    +10 Damage       -          500 score", True, WHITE)
                     C_text = font.render("C:    +2 bullets            -          600 score", True, WHITE)
 
-                    
+
+                    #Shows the value of the player attributes so he/she can see what to buy, and what he/she can buy
                     font = pygame.font.SysFont("Arial", 30)
                     text = font.render("Health: " + str(player.health) + " Score: " + str(player.score) + " Damage: " + str(bullet_damage) + " Bullets: " + str(maxbullets), True, WHITE)
                     
-                    screen.blit(shop_title_text, [(400 - (shop_title_text.get_width() // 2)), 20])
+                    screen.blit(shop_title_text, [(400 - (shop_title_text.get_width() // 2)), 20])  #Blit all the text to the screen
 
                     screen.blit(shop_text, [(400 - (shop_text.get_width() // 2)), 150])
                     screen.blit(shop_text2, [(400 - (shop_text.get_width() // 2)), 200])
@@ -1785,21 +1771,20 @@ while not done:
 
                     for event in pygame.event.get():
                         if event.type == pygame.KEYDOWN:
-                            if event.key == pygame.K_a:
-                                if player.score > 10:
-                                    player.health += 20
-                                    player.score -= 10
+                            if event.key == pygame.K_a: #If the user presses A:
+                                if player.score > 100:  #and has enough score to purchase the upgrade,
+                                    player.health += 20 #Give the upgrade, and remove the score
+                                    player.score -= 100
 
-                            elif event.key == pygame.K_b:
-                                if player.score > 50:
-                                    bullet_damage += 10
-                                    player.score -= 50
+                            elif event.key == pygame.K_b: #If the user presses A:
+                                if player.score > 500:  #and has enough score to purchase the upgrade,
+                                    bullet_damage += 10 #Give the upgrade, and remove the score
+                                    player.score -= 500
 
-                            elif event.key == pygame.K_c:
-                                if player.score > 60:
-                                    maxbullets += 2
-                                    player.score -= 60
-                                    print('hi')
+                            elif event.key == pygame.K_c: #If the user presses A:
+                                if player.score > 600:  #and has enough score to purchase the upgrade,
+                                    maxbullets += 2     #Give the upgrade, and remove the score
+                                    player.score -= 600
                                 
                             
                                 
@@ -1821,7 +1806,7 @@ while not done:
                  # 5 = Player spawnpoint
 
 
-                randommap = random.randint(1,4)
+                randommap = random.randint(1,4) #Randomises the map for each level
 
 
                 if randommap == 1:
@@ -1941,18 +1926,18 @@ while not done:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 
 
-                player = Player()
+                player = Player()   #Create new player
                 player_list.add(player)
-                all_sprites_list.add(player)
-                player.health = oldhealth
-                player.score = oldscore
+                all_sprites_list.add(player)    #Set new player attributes
+                player.health = oldhealth       #As old player attributes
+                player.score = oldscore         #So progress is saved
                 player.kills = oldkills
                 player.coins = oldcoins
-                level = oldlevel + 1
+                level = oldlevel + 1            #Add one to the level
 
 
 
-                #Adding in features for new levels
+                #Looping through map array to add in all walls
                 for y in range(24):
                     for x in range(26):
                         if maps[y][x] == 1:
@@ -1961,15 +1946,18 @@ while not done:
                             wall_list.add(wall)
 
 
+                #Looping through map array to add in all enemies
                 for y in range(24):
                     for x in range(26):
                         if maps[y][x] == 2:
-                            randomenemy = random.randint(1,4)
+                            randomenemy = random.randint(1,4)   #Randomises number of enemies, and spawn locations
                             if randomenemy == 1:
                                 enemy=Enemy(x*100, y*100)
                                 all_sprites_list.add(enemy)
                                 enemy_list.add(enemy)
 
+                
+                #Looping through map array to add in all walls
                 for y in range(24):
                     for x in range(26):
                         if maps[y][x] == 4:
@@ -1978,15 +1966,15 @@ while not done:
                             coin_list.add(coin)
 
 
-                #Adds more health to enemy each level to make it harder
+                #Adds more health to enemy each level to make it harder as game progresse
 
                 for enemy in enemy_list:
                     enemy.health += (level*2)
 
     # -------------------------------------------------------- #
 
-    for enemybullet in enemy_bullet_list:
-        enemybullet.damage += (level*2)
+    
+
 
     # ----------------- Displaying things on screen --------------- #
     
@@ -2012,7 +2000,9 @@ while not done:
                                                                 #rather than the start screen
     
 
+        #Create black bar behind information at bottom for clarity
         pygame.draw.line(screen, BLACK, [0,784],[800,784],50)
+        
         #Displaying health, score, etc to user
 
         font = pygame.font.SysFont("hiraginosansgb", 30, True)
@@ -2021,6 +2011,8 @@ while not done:
         text_y = 768
         screen.blit(text, [text_x, text_y])    #Blitting scoreboard
 
+
+        #Displaying level information to user
         font = pygame.font.SysFont("Aerial", 30, False, False)
 
         highscore_text = font.render("Highscore: " + str(highscore), False, WHITE)
@@ -2036,6 +2028,8 @@ while not done:
 
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
 
+        
+        #If a powerup is active, display the icon on the top right to indicate to the player that it's activeß
         if extra_damage == True:
             screen.blit(extradamage_icon, [740, 0])
 

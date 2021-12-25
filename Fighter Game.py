@@ -46,7 +46,7 @@ class Wall(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
          def __init__(self):
              super().__init__()
-             self.health = 100
+             self.health = 1000
              self.score = 0
              self.kills = 0
              self.coins = 0
@@ -317,11 +317,26 @@ class Enemy(pygame.sprite.Sprite):
                     self.current_image_right = 0
 
 
-    
-                
+class Spawner(pygame.sprite.Sprite):     #Spawners class
 
-        
+    def __init__(self,x,y):
+
+        super().__init__()
+
+        self.image = pygame.image.load("spawner.jpg").convert_alpha()
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.health = 100
+        self.damage = 30
+        self.score = 30
+        self.x_distance = 0
+        self.y_distance = 0
+        self.distance = 0
     
+
+           
         
 
 
@@ -536,6 +551,9 @@ portal_hit_list = pygame.sprite.Group()
 coin_list = pygame.sprite.Group()
 coin_hit_list = pygame.sprite.Group()
 
+spawner_list = pygame.sprite.Group()
+spawner_hit_list = pygame.sprite.Group()
+
 
             #Powerups
 
@@ -627,8 +645,10 @@ maxbullets = 3
 
 bullet_damage = 10
 
-difficulty = easy
+difficulty = hard
 
+
+last_spawn = 0
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 
@@ -1154,7 +1174,7 @@ while not done:
         font = pygame.font.SysFont("Arial", 50) #Set value of death text
         death_text = font.render("You died", True, WHITE, BLACK)
         restart_text = font.render("Press space to go to the main menu", True, WHITE, BLACK)
-        screen.blit(death_text, [400-(death_text.get_width() // 2), 300])
+        screen.blit(death_text, [400-(death_text.get_width() // 2), 300])                       #Display all the text to the screen
         screen.blit(restart_text, [400-(restart_text.get_width() // 2), 400])
 
         #Remove powerups
@@ -1165,29 +1185,34 @@ while not done:
 
 
     #Remove all existing sprites
-        for wall in wall_list:
+        for wall in wall_list:                  #Remove walls
             wall_list.remove(wall)
         for wall in all_sprites_list:
             all_sprites_list.remove(wall)
 
-        for coin in coin_list:
-            coin_list.remove(wall)
+        for coin in coin_list:                  #Remove coins
+            coin_list.remove(coin)
         for coin in coin_list:
             all_sprites_list.remove(coin)
 
-        for enemy in enemy_list:
+        for enemy in enemy_list:                #Remove enemies
             enemy_list.remove(enemy)
         for enemy in all_sprites_list:
             all_sprites_list.remove(enemy)
 
-        for bullet in bullet_list:
+        for bullet in bullet_list:              #Remove bullets
             bullet_list.remove(bullet)
         for bullet in all_sprites_list:
             bullet_list.remove(bullet)
 
+        for spawner in spawner_list:            #Remove spawners
+            spawner_list.remove(spawner)
+        for spawner in all_sprites_list:
+            all_sprites_list.remove(spawner)
+
         #Removing powerups in the rare occasion they spawn as the player dies
             
-        for addhealth in addhealth_list:
+        for addhealth in addhealth_list:        #Remove add health powerup
             addhealth_list.remove(addhealth)
         for addhealth in all_sprites_list:
             all_sprites_list.remove(addhealth)
@@ -1195,7 +1220,7 @@ while not done:
             powerup_list.remove(addhealth)
 
 
-        for extradamage in extradamage_list:
+        for extradamage in extradamage_list:    #Remove extra damage powerup
             extradamage_list.remove(extradamage)
         for extradamage in all_sprites_list:
             all_sprites_list.remove(extradamage)
@@ -1203,7 +1228,7 @@ while not done:
             powerup_list.remove(extradamage)
             
 
-        for shield_powerup in shield_powerup_list:
+        for shield_powerup in shield_powerup_list:  #Remove shield powerup
             shield_powerup_list.remove(shield_powerup)
         for shield_powerup in all_sprites_list:
             all_sprites_list.remove(shield_powerup)
@@ -1211,7 +1236,7 @@ while not done:
             powerup_list.remove(shield_powerup)
             
 
-        for extrabullets in extrabullets_list:
+        for extrabullets in extrabullets_list:  #Remove extra bullets powerup
             extrabullets_list.remove(extrabullets)
         for extrabullets in all_sprites_list:
             all_sprites_list.remove(extrabullets)
@@ -1281,7 +1306,29 @@ while not done:
 
 
     # -------------------------------------------------------------- #
+
+    # -------- Collision between player, bullets, and spawners ------- #
     
+    for bullet in bullet_list:                                                          #If a bullet bullet collides with
+        spawner_hit_list = pygame.sprite.spritecollide(bullet, spawner_list, False)     #a spawner, add to spawner_hit_list
+
+        for spawner in spawner_hit_list:
+            spawner.health -= bullet.damage     #Remove health from spawner
+            player.score += bullet.damage       #Add score to player
+            all_sprites_list.remove(bullet)     #Remove bullet 
+            bullet_list.remove(bullet)
+
+
+    player_hit_list = pygame.sprite.spritecollide(player, spawner_list, False)  #If a player collides with
+                                                                                #a spawner, add to player_hit_list
+    for spawner in player_hit_list:
+        spawner.health -= player.damage     #Remove health from spawner
+        player.health -= spawner.damage     #and player
+        player.score += spawner.score       #Add score to player for damaging spawner
+
+
+
+
 
 
     # ------------------ Powerup Collisions ------------------ #
@@ -1651,18 +1698,18 @@ while not done:
 
     
          if len(portal_list) == 0:
-             for y in range(24):                         #Create portal
+             for y in range(24):                         #Create portal at the desired location
                  for x in range(26):
                     if maps[y][x] == 3:
-                        portal=Portal(x*100, y*100)
-                        all_sprites_list.add(portal)
+                        portal=Portal(x*100, y*100)      
+                        all_sprites_list.add(portal)     #Add to lists
                         portal_list.add(portal)
 
-         portal_hit_list = pygame.sprite.spritecollide(player, portal_list, False)
+         portal_hit_list = pygame.sprite.spritecollide(player, portal_list, False)  #Check for collisions between player and portal
 
-         if len(portal_hit_list) != 0 and player.x_speed == 0 and player.y_speed == 0: #Remove everything from current level if the player goes into portal
-                for wall in all_sprites_list:
-                    all_sprites_list.remove(wall)
+         if len(portal_hit_list) != 0 and player.x_speed == 0 and player.y_speed == 0: #If there is a collision between the player and the portal 
+                for wall in all_sprites_list:                                          #and the player is standing still
+                    all_sprites_list.remove(wall)                                      #Begin removing everything from the current level
                 for wall in wall_list:
                     wall_list.remove(wall)
                     all_sprites_list.remove(player)
@@ -1680,8 +1727,15 @@ while not done:
                 for portal in portal_hit_list:
                     portal_list.remove(portal)
 
+                for spawner in spawner_list:
+                    spawner_list.remove(spawner)
+                for spawner in all_sprites_list:
+                    all_sprites_list.remove(spawner)
+                for spawner in spawner_hit_list:
+                    spawner_hit_list.remove(spawner)
+
                 
-                #Shop
+                #Shop code
 
                 shop = True
 
@@ -1733,6 +1787,7 @@ while not done:
                     #Shows the value of the player attributes so he/she can see what to buy, and what he/she can buy
                     font = pygame.font.SysFont("Arial", 30)
                     text = font.render("Health: " + str(player.health) + " Score: " + str(player.score) + " Damage: " + str(bullet_damage) + " Bullets: " + str(maxbullets), True, WHITE)
+                    #Display the user's current statistics to the screen
                     
                     screen.blit(shop_title_text, [(400 - (shop_title_text.get_width() // 2)), 20])  #Blit all the text to the screen
 
@@ -1751,7 +1806,7 @@ while not done:
 
 
 
-                    #Continue Button
+                    #Continue Button allowing the user to move onto the next level
                     
                     screen.blit(continue_text, [570,53])
 
@@ -1762,9 +1817,9 @@ while not done:
                         screen.blit(continue_text, [570, 53])
 
                         for event in pygame.event.get():
-                            if event.type == pygame.MOUSEBUTTONDOWN: #And is pressed, start the game
-                                shop = False
-                                pause = False
+                            if event.type == pygame.MOUSEBUTTONDOWN: #If the button is pressed
+                                shop = False                         #Start the game by exiting the loop
+                                pause = False                        #and allowing sprites to update
 
 
                     #Shop Purchases
@@ -1804,6 +1859,7 @@ while not done:
                  # 3 = Portal
                  # 4 = Coins
                  # 5 = Player spawnpoint
+                 # 6 = Enemy Spawners
 
 
                 randommap = random.randint(1,4) #Randomises the map for each level
@@ -1818,18 +1874,18 @@ while not done:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,1,0,0,0,0,2,0,0,2,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,2,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,1,0,0,0,0,0,0,6,0,0,2,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,4,0,0,1,1,1,1,1,0,0,0,0,4,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,6,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,4,0,0,0,1,0,0,2,0,0,2,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
+                            [1,1,1,1,0,6,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,2,0,0,0,1,0,0,0,0,0,0,4,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,1,1,1,1,1,0,0,2,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,2,0,0,2,0,0,1,0,2,0,0,2,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,6,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,2,0,6,2,0,0,1,0,2,0,0,2,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -1848,17 +1904,17 @@ while not done:
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,0,0,2,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,2,0,0,0,0,1,0,0,2,0,4,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,4,0,0,2,0,1,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,2,0,0,0,0,1,0,6,2,0,4,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,6,0,4,0,0,2,0,1,0,0,2,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,2,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,4,0,0,0,1,0,0,0,0,0,2,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,4,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,2,0,2,0,2,1,0,0,0,0,2,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,6,1,0,0,0,0,4,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,6,0,2,0,2,0,2,1,0,0,6,0,2,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -1876,18 +1932,18 @@ while not done:
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,0,0,2,0,1,0,0,0,0,2,1,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,2,1,0,0,2,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,2,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,2,0,1,0,0,0,0,2,1,0,6,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,2,1,0,6,2,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,0,0,0,1,0,0,6,0,0,1,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,4,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,1,1,0,0,4,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,2,1,1,1,1,1,1,1,1,0,0,0,4,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,2,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,2,0,0,2,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,2,1,0,0,0,1,0,0,0,0,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,2,0,6,0,1,1,1,1,1],
+                            [1,1,1,1,0,6,0,1,1,1,1,0,0,0,1,2,0,0,2,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,2,1,0,0,0,1,0,0,6,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,0,0,2,0,4,0,0,0,0,2,0,0,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -1906,17 +1962,17 @@ while not done:
                             [1,1,1,1,0,0,0,1,0,0,2,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,4,0,0,0,0,0,0,0,0,0,0,2,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,2,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,1,0,6,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,0,0,1,1,0,0,0,4,0,1,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,0,2,4,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,1,1,0,0,0,0,2,0,0,1,1,1,1,1,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                             [1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,2,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,2,0,0,0,0,1,1,1,1,0,2,0,0,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,6,0,2,0,0,0,0,1,1,1,1,0,2,0,0,1,1,1,1,1],
                             [1,1,1,1,0,2,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1],
-                            [1,1,1,1,0,0,0,0,0,0,1,2,0,0,1,0,2,0,4,0,3,3,1,1,1,1,1],
+                            [1,1,1,1,0,0,0,0,0,0,1,2,6,0,1,0,2,6,4,0,3,3,1,1,1,1,1],
                             [1,1,1,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -1945,18 +2001,19 @@ while not done:
                             all_sprites_list.add(wall)
                             wall_list.add(wall)
 
+                if difficulty != 3:
 
-                #Looping through map array to add in all enemies
-                for y in range(24):
-                    for x in range(26):
-                        if maps[y][x] == 2:
-                            randomenemy = random.randint(1,4)   #Randomises number of enemies, and spawn locations
-                            if randomenemy == 1:
-                                enemy=Enemy(x*100, y*100)
-                                all_sprites_list.add(enemy)
-                                enemy_list.add(enemy)
+                    #Looping through map array to add in all enemies
+                    for y in range(24):
+                        for x in range(26):
+                            if maps[y][x] == 2:
+                                randomenemy = random.randint(1,4)   #Randomises number of enemies, and spawn locations
+                                if randomenemy == 1:
+                                    enemy=Enemy(x*100, y*100)
+                                    all_sprites_list.add(enemy)
+                                    enemy_list.add(enemy)
 
-                
+                 
                 #Looping through map array to add in all walls
                 for y in range(24):
                     for x in range(26):
@@ -1965,7 +2022,25 @@ while not done:
                             all_sprites_list.add(coin)
                             coin_list.add(coin)
 
+                if difficulty == 3:     #If on hard difficulty
+                    
+                    for y in range(24):     #Loop through maps array
+                        for x in range(26):
+                            if maps[y][x] == 6:
+                                randomspawner = random.randint(1,2) #1 in 2 chance of spawning a spawner
+                                if randomspawner == 1:
+                                    spawner=Spawner(x*100, y*100)   #Create spawner in location
+                                    all_sprites_list.add(spawner)
+                                    spawner_list.add(spawner)
 
+                    while len(spawner_list) > 4:        #If there are too many spawners
+                        spawner_list.remove(spawner)    #Remove a spawner until the limit is met
+                        all_sprites_list.remove(spawner)
+                        
+                        
+                        
+                                        
+                
                 #Adds more health to enemy each level to make it harder as game progresse
 
                 for enemy in enemy_list:
@@ -1973,10 +2048,54 @@ while not done:
 
     # -------------------------------------------------------- #
 
-    
+
+    # ----------------- Hard Level ----------------------- #
+
+    if difficulty == 3:
+        
+        for spawner in spawner_list:
+            spawner.x_distance = player.rect.x - spawner.rect.x     #Find x distance between player and spawner
+            spawner.y_distance = player.rect.y - spawner.rect.y     #Find y distance between player and spawner
+            
+            spawner.distance = math.sqrt((spawner.x_distance**2)+(spawner.y_distance**2))   #Find the actual distance
+                                                                                            #between player and spawner
+
+            current_ticks = pygame.time.get_ticks()     #Get the current time value
+            if spawner.distance < 600 and len(enemy_list) < 10: #If there are less than 10 enemies + player within 600 pixels,
+                
+
+                if (current_ticks - last_spawn)/1000 > 5:   #Calculate the gap between the current time
+                                                            # (current_ticks) and the last time an enemy was spawned in
+                                                            # (last_spawn). If the gap is over 5 seconds, spawn a new enemy
+                    
+                    enemy=Enemy(spawner.rect.x, spawner.rect.y) #Spawn enemy at the spawner location
+                    all_sprites_list.add(enemy)
+                    enemy_list.add(enemy)
+
+                    last_spawn = pygame.time.get_ticks()    #Get the time of which the last enemy was spawned in
+
+
+
+            #Spawner Death
+
+            if spawner.health <= 0:                 #If the spawner dies
+                all_sprites_list.remove(spawner)    #Remove from map
+                spawner_list.remove(spawner)
+                player.score += 50                  #Give score to player
+                 
+
+                
+            
+    randomasd = random.randint(1,50)
+    if randomasd == 1:
+        print(len(spawner_list))
+            
+    # ----------------------------------------------------- #
+            
 
 
     # ----------------- Displaying things on screen --------------- #
+
     
     ' -- Highscore + Player Scoreboard + Level information -- '
     if player.score > highscore:
@@ -2029,7 +2148,7 @@ while not done:
         screen.blit(level_text, [(400 - (level_text.get_width() // 2)), 0])
 
         
-        #If a powerup is active, display the icon on the top right to indicate to the player that it's activeß
+        #If a powerup is active, display the icon on the top right to indicate to the player that it's active
         if extra_damage == True:
             screen.blit(extradamage_icon, [740, 0])
 
